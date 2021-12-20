@@ -15,13 +15,13 @@ def lire_fichier(fichier="./2KP200-TA-0.dat"):
         for l in ligne:
             l = l.split()
             if(l[0] == "n"):
-                data["n"]=l[1]
-            if(len(l) == 8 and l[0] == "c"):
+                data["n"]=int(l[1])
+            elif(len(l) == 8 and l[0] == "c"):
                 data["nom_param"] = l[1:]
-            if(l[0] == "i"):
-                data["i"].append(l[1:])
-            if(l[0] == "W"):
-                data["W"] = l[1]
+            elif(l[0] == "i"):
+                data["i"].append([int(i) for i in l[1:]])
+            elif(l[0] == "W"):
+                data["W"] = int(l[1])
             
 
     return data
