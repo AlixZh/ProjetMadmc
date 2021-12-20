@@ -38,7 +38,7 @@ def wmax(data,xi):
     w = 1 
     for x in xi:
         w += data["i"][x][0]
-    return w // 2
+    return np.floor(w / len(xi))
 
 def get_donnees_pb(data,vp,xi):
     """
@@ -54,7 +54,7 @@ def get_donnees_pb(data,vp,xi):
         wi.append(data["i"][x][0])
     return np.array(wi), np.array(res)
 
- def pb(data,vp,xi):
+def dict_pb(data,vp,xi):
     """
     data : dictionnaire des instances
     vp : liste des indices de critères
@@ -64,7 +64,7 @@ def get_donnees_pb(data,vp,xi):
     res = dict()
     res["n"] = len(xi)
     res["p"] = len(vp)
-    res["W"] = wmax(data,vp,xi)
+    res["W"] = wmax(data,xi)
     res["wi"], res["v"] = get_donnees_pb(data,vp,xi)
     res["vp"] = vp
     res["xi"] = xi
@@ -81,7 +81,16 @@ def sol(pb,x):
 		res[i] = 1
 	return res
 	
-
+def y(pb,x):
+    """
+    pb : une liste des donnees du probleme
+    x  : (une solution realisable) liste des indices des objets à prendre dans cette solution
+    revoie y : evaluation de x
+    """
+    y=np.array([0]*pb["p"])
+    for i in x:
+        y+=np.array(pb["v"][i])
+    return y
 
 #----------------------------------------
 # fonction d initialisation
@@ -94,7 +103,7 @@ def init_glouton(pb):
     xi : liste des indices des objets
     renvoie une solution initiale 
     """
-    somme_yi = np.sum(pb["i"],1) / pb["p"] #somme des vp des criteres a considerer
+    somme_yi = np.sum(pb["v"],1) / pb["p"] #somme des vp des criteres a considerer
     indice=np.argsort(somme_yi)  #trier la moyenne arithmetique de chaque objet
     i = pb["n"]-1
     sol=[] #liste contient les indices des objets prises
@@ -107,19 +116,11 @@ def init_glouton(pb):
     return sol
     
 
+
 #----------------------------------------
 # fonction d agregation
 #----------------------------------------
-def y(pb,x):
-    """
-    pb : une liste des donnees du probleme
-    x  : (une solution realisable) liste des indices des objets qu'on prends dans cette solution
-    revoie y : evaluation de x
-    """
-    y=np.array([0]*pb["p"])
-    for i in x:
-        y+=np.array(pb["v"][i])
-    return y
+
 
 def som_pond(pb,w,x):
     """
