@@ -24,7 +24,9 @@ rbls(pb,eps,max_it):
     it = 0
     ameliore = True
     while(ameliore and it < max_it) : 
-        xvoisin = voisinage(pb, sol) : 
+        sol_voisins = voisinage(pb, sol)
+         while( mmr(sol_voisins, omega) > eps):
+                (a,b) = demande(sol_voisins,omega)
             
     
     
