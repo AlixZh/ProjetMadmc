@@ -110,6 +110,16 @@ def init_glouton(pb):
 #----------------------------------------
 # fonction d agregation
 #----------------------------------------
+def y(pb,x):
+    """
+    pb : une liste des donnees du probleme
+    x  : (une solution realisable) liste des indices des objets qu'on prends dans cette solution
+    revoie y : evaluation de x
+    """
+    y=np.array([0]*pb["p"])
+    for i in x:
+        y+=np.array(pb["v"][i])
+    return y
 
 def som_pond(pb,w,x):
     """
