@@ -49,16 +49,36 @@ def get_donnees_pb(data,vp,xi):
     res.append(np.array([data["i"][x][p] for p in vp]))
     return np.array(res)
 
-def pb(data,vp,xi):
+ def pb(data,vp,xi):
     """
     data : dictionnaire des instances
     vp : liste des indices de critères
     xi : liste des indices des objets
     renvoie une liste des donnees du probleme a considerer
+    """
     res = dict()
     res["n"] = len(xi)
-    res["W] = wmax(data,vp,xi)
+    res["W"] = wmax(data,vp,xi)
     res["i"] = get_donnees_pb(data,vp,xi)
     res["vp"] = vp
     res["xi"] = xi
     return res
+  
+def init_glouton(data,vp,xi):
+    """
+    data : dictionnaire des instances
+    vp : liste des indices de critères
+    xi : liste des indices des objets
+    renvoie une solution initiale 
+    """
+    pb = pb(data,vp,xi)
+    sol=[0] * pb["n"]
+    
+    somme = np.sum(pb["i"][:,1:],1) / len(vp)
+    indice=np.argsort(somme)  
+    i = 0
+    while(i < len(xi) and np.sum(sol) < W):
+        sol.append(indice[i])
+        i += 1
+    return sol
+    
