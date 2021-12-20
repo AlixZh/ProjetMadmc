@@ -26,15 +26,14 @@ def lire_fichier(fichier="./2KP200-TA-0.dat"):
 
     return data
 
-def weight(data,yi,xi):
+def wmax(data,vp,xi):
     """
     data  dictionnaire des donnees
-    yi : liste, contient les i indices des objectifs à prendre en compte
+    vp : liste, contient les i indices des objectifs à prendre en compte
     xi : liste, contient les indices des objets à prendre
     renvoie la capacite a ne pas depasser
     """
     w = 1 
-    for v in yi:
-        for x in xi:
-            w = data["i"][x][0]*data["i"][x][v]
+    for v in range(len(vp)):
+        w += data["i"][xi[v]][vp[v]]
     return w // 2
