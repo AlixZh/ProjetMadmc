@@ -47,4 +47,4 @@ def get_donnees_pb(data,vp,xi):
   res = []
   for x in xi :
     res.append(np.array([data["i"][x][p] for p in vp]))
-  return res
+  return np.array(res)
