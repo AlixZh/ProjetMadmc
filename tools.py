@@ -67,14 +67,13 @@ def get_donnees_pb(data,vp,xi):
     res["xi"] = xi
     return res
   
-def init_glouton(data,vp,xi):
+def init_glouton(pb):
     """
     data : dictionnaire des instances
     vp : liste des indices de critères
     xi : liste des indices des objets
     renvoie une solution initiale 
     """
-    pb = pb(data,vp,xi)
     somme_yi = np.sum(pb["i"],1) / pb["p"] #somme des vp des criteres a considerer
     indice=np.argsort(somme_yi)  #trier la moyenne arithmetique de chaque objet
     i = 0
