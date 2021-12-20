@@ -11,6 +11,7 @@ def get_donnees(data,vp,xi):
   """
   res = []
   for v in range(len(vp)):
+    res.append([data["i"][])
   
 def init_glouton(data,vp,xi):
   """
