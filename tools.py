@@ -34,7 +34,7 @@ def wmax(data,xi):
     """
     w = 1 
     for x in xi:
-        w += data["i"][x][1]
+        w += data["i"][x][0]
     return w // 2
 
 def get_donnees_pb(data,vp,xi):
@@ -42,24 +42,27 @@ def get_donnees_pb(data,vp,xi):
     data : dictionnaire des instances
     vp : liste des indices de critères
     xi : liste des indices des objets
-    renvoie une liste des donnees du probleme a considerer
+    renvoie une liste des donnees vp et wi du probleme a considerer
     """
     res = []
+    wi = []
     for x in xi :
-    res.append(np.array([data["i"][x][p] for p in vp]))
-    return np.array(res)
+        res.append(np.array([data["i"][x][p] for p in vp])) #contient que les vp
+        wi.append(data["i"][x][0])
+    return np.array(wi), np.array(res)
 
  def pb(data,vp,xi):
     """
     data : dictionnaire des instances
     vp : liste des indices de critères
     xi : liste des indices des objets
-    renvoie une liste des donnees du probleme a considerer
+    renvoie un dictionnaire des donnees du probleme a considerer
     """
     res = dict()
     res["n"] = len(xi)
+    res["p"] = len(vp)
     res["W"] = wmax(data,vp,xi)
-    res["i"] = get_donnees_pb(data,vp,xi)
+    res["wi"], res["i"] = get_donnees_pb(data,vp,xi)
     res["vp"] = vp
     res["xi"] = xi
     return res
@@ -72,13 +75,67 @@ def init_glouton(data,vp,xi):
     renvoie une solution initiale 
     """
     pb = pb(data,vp,xi)
-    sol=[0] * pb["n"]
-    
-    somme = np.sum(pb["i"][:,1:],1) / len(vp)
-    indice=np.argsort(somme)  
+    somme_yi = np.sum(pb["i"],1) / pb["p"] #somme des vp des criteres a considerer
+    indice=np.argsort(somme_yi)  #trier la moyenne arithmetique de chaque objet
     i = 0
-    while(i < len(xi) and np.sum(sol) < W):
-        sol.append(indice[i])
+    sol=[0] * pb["n"] #liste contient sol[i] = 1 si l'objet data["xi"][i] est pris
+    s = 0  #somme des poids des objets ajouter dans sol      
+    while(i < pb["n"]):
+        if (s + pb["wi"][i] < data["W"]):
+            s += pb["wi"][i]  
+            sol[indice[i]] = 1
         i += 1
     return sol
     
+
+    
+def som_pond(pb,w,x):
+    """
+    pb : donnees du probleme a considerer
+	w : liste des poids de ponderation pour la somme ponderee
+	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+	renvoie le resultat de la fonction d agregation somme ponderee, 
+	et true s il est valide, false, s il y a une erreur
+    """
+    res = 0
+    if(len(w) != len(pb["n"])):
+        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+        return false,res
+    for i in range(pb["n"]):
+        for p in range(pb["p"]):
+            res += x[i]*pb["i"][p]*w[i]
+	return true, res								  
+									  
+            	
+def owa(pb,w,x):
+    """
+    pb : donnees du probleme a considerer
+	w : liste des poids de ponderation pour la somme ponderee
+	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+	renvoie le resultat de la fonction d agregation somme ponderee, 
+	et true s il est valide, false, s il y a une erreur
+    """
+	res = 0
+	if(len(w) != len(pb["n"])):
+		print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+		return false,res
+	elif(np.sum(w) != 1):
+		print("sum(wi) != 1")
+		return false,res
+	ai = np.argsort(pb["i"]) #trier les criteres dans l ordre
+	for i in range(len(pb["n"])):
+		for p in range(pb["p"]):
+			res += x[ai[i]]*pb["i"][p]*w[i]
+	return true,res			   
+				   
+"""									  
+def int_choquet():
+    """
+    pb : donnees du probleme a considerer
+	w : liste des poids de ponderation pour la somme ponderee
+	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+	renvoie le resultat de la fonction d agregation somme ponderee, 
+	et true s il est valide, false, s il y a une erreur
+    """
+"""	
+	
