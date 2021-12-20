@@ -11,3 +11,4 @@ recherce_locale(pb):
     """
     sol = init_glouton(pb)
     
+    
