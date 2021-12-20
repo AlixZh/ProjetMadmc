@@ -14,9 +14,9 @@ def init_glouton(data,vp,xi):
     pb = get_donnees_pb(data,vp,xi)
     W = wmax(data,vp,xi)
     somme = np.sum(pb[:,1:],1)
-    for i in range(len(xi)):
-        
-    while(np.sum(sol) < W):
-    
+    np.argsort(somme)  
+    i = 0
+    while(i < len(xi) and np.sum(sol) < W):
+        sol.append(xi[i])
   
   
