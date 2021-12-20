@@ -14,6 +14,14 @@ def mr():
 def mmr():
     return
 
+def voisin(pb,courante):
+    """
+    pb : donnees du probleme
+    courante : solution courante
+    """
+    ens ={}
+    return ens
+
 rbls(pb,eps,max_it):
     """
     pb : dict des donnees du probleme considere
