@@ -29,6 +29,9 @@ def lire_fichier(fichier="./2KP200-TA-0.dat"):
 def weight(data,yi,xi):
     """
     data  dictionnaire des donnees
+    yi : liste, contient les i indices des objectifs à prendre en compte
+    xi : liste, contient les indices des objets à prendre
+    renvoie la capacite a ne pas depasser
     """
     w = 1 
     for v in yi:
