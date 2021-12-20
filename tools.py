@@ -187,14 +187,28 @@ def owa(pb,w,x):
 	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
 	for p in range(pb["p"]):
 		res += ai[ind[pb["p"]-1-p]]*w[p]
-	return True,res		
-				   
-"""									  
-def int_choquet(pb,w,x):
+	return True,res	
+
+
+def gen_capacite(pb):
+    """
+    pb : donnees du problem
+    generer les poids de choquet
+    """
+    w = [0,1]
+    possibilite = [[set()],[{i for i in range(pb["p"])}]]
+    for i in range(1,pb["p"]-1):
+        comb = list(itertools.combinations([k for k in range(pb["p"])],i))
+        possibilite.append([set(i) for i in comb])
+        w.append(np.random.random(len(comb)))
+    return w, possibilite
+
+
+def int_choquet(pb,w,x,possibilite):
     """
     pb : donnees du probleme a considerer
 	w : liste des poids de ponderation pour la somme ponderee
-	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+	x : la liste des indices des objets a prendre dans le sac 
 	renvoie le resultat de la fonction d agregation somme ponderee, 
 	et true s il est valide, false, s il y a une erreur
     """
@@ -202,5 +216,10 @@ def int_choquet(pb,w,x):
 
 	ai = y(pb,x)	
 	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
-
-"""
+	
+	for i in range(0,pb["p"]):
+		if(i == 0):
+			res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
+		else : 
+			res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
+	return res
