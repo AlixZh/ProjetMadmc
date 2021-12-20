@@ -25,3 +25,13 @@ def lire_fichier(fichier="./2KP200-TA-0.dat"):
             
 
     return data
+
+def weight(data,yi,xi):
+    """
+    data  dictionnaire des donnees
+    """
+    w = 1 
+    for v in yi:
+        for x in xi:
+            w = data["i"][x][0]*data["i"][x][v]
+    return w // 2
