@@ -1,1 +1,10 @@
-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
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def greedy_algorithm(data):
+  """
+  data : dictionnaire des instances
+  """
+  sol=[]
+  
