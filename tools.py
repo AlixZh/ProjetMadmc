@@ -3,6 +3,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+#----------------------------------------
+# fonction d agregation de donnees
+#----------------------------------------
 
 def lire_fichier(fichier="./2KP200-TA-0.dat"):
     """
@@ -62,11 +65,28 @@ def get_donnees_pb(data,vp,xi):
     res["n"] = len(xi)
     res["p"] = len(vp)
     res["W"] = wmax(data,vp,xi)
-    res["wi"], res["i"] = get_donnees_pb(data,vp,xi)
+    res["wi"], res["v"] = get_donnees_pb(data,vp,xi)
     res["vp"] = vp
     res["xi"] = xi
     return res
-  
+
+def sol(pb,x):
+	"""
+	pb : dict des donnees du probleme
+	x : liste des indices des objets a prendre
+	renvoie la solution de x sous forme res[i] = 1 si l objet i est pris
+	"""
+	res = [0] * pb["n"]
+	for i in x:
+		res[i] = 1
+	return res
+	
+
+
+#----------------------------------------
+# fonction d initialisation
+#----------------------------------------
+
 def init_glouton(pb):
     """
     data : dictionnaire des instances
@@ -76,23 +96,26 @@ def init_glouton(pb):
     """
     somme_yi = np.sum(pb["i"],1) / pb["p"] #somme des vp des criteres a considerer
     indice=np.argsort(somme_yi)  #trier la moyenne arithmetique de chaque objet
-    i = 0
-    sol=[0] * pb["n"] #liste contient sol[i] = 1 si l'objet data["xi"][i] est pris
+    i = pb["n"]-1
+    sol=[] #liste contient les indices des objets prises
     s = 0  #somme des poids des objets ajouter dans sol      
-    while(i < pb["n"]):
+    while(i >= 0):
         if (s + pb["wi"][i] < data["W"]):
             s += pb["wi"][i]  
-            sol[indice[i]] = 1
-        i += 1
+            sol.append(indice[i])
+        i -= 1
     return sol
     
 
-    
+#----------------------------------------
+# fonction d agregation
+#----------------------------------------
+
 def som_pond(pb,w,x):
     """
     pb : donnees du probleme a considerer
 	w : liste des poids de ponderation pour la somme ponderee
-	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+	x : la liste des indices des objets a prendre dans le sac
 	renvoie le resultat de la fonction d agregation somme ponderee, 
 	et true s il est valide, false, s il y a une erreur
     """
@@ -100,9 +123,9 @@ def som_pond(pb,w,x):
     if(len(w) != len(pb["n"])):
         print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
         return false,res
-    for i in range(pb["n"]):
-        for p in range(pb["p"]):
-            res += x[i]*pb["i"][p]*w[i]
+	ai = y(pb,x)
+	for p in range(pb["p"]):
+		res = ai[p]*w[p]
 	return true, res								  
 									  
             	
@@ -121,10 +144,10 @@ def owa(pb,w,x):
 	elif(np.sum(w) != 1):
 		print("sum(wi) != 1")
 		return false,res
-	ai = np.argsort(pb["i"]) #trier les criteres dans l ordre
-	for i in range(len(pb["n"])):
-		for p in range(pb["p"]):
-			res += x[ai[i]]*pb["i"][p]*w[i]
+	ai = y(pb,x)
+	ind = np.argsort(ai) #trier les criteres dans l ordre
+	for p in range(pb["p"]):
+		res += ai[ind[p]]*w[p]
 	return true,res			   
 				   
 """									  
