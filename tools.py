@@ -131,13 +131,16 @@ def som_pond(pb,w,x):
 	et true s il est valide, false, s il y a une erreur
     """
     res = 0
-    if(len(w) != len(pb["n"])):
+    if(len(w) != pb["p"]):
         print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
-        return false,res
+        return False,res
+	elif(round(np.sum(w)) != 1):
+		print("sum(wi) != 1")
+		return False,res
 	ai = y(pb,x)
 	for p in range(pb["p"]):
 		res = ai[p]*w[p]
-	return true, res								  
+	return True, res								  
 									  
             	
 def owa(pb,w,x):
@@ -149,17 +152,17 @@ def owa(pb,w,x):
 	et true s il est valide, false, s il y a une erreur
     """
 	res = 0
-	if(len(w) != len(pb["n"])):
+	if(len(w) != pb["p"]):
 		print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
-		return false,res
-	elif(np.sum(w) != 1):
+		return False,res
+	elif(round(np.sum(w)) != 1):
 		print("sum(wi) != 1")
-		return false,res
+		return False,res
 	ai = y(pb,x)
 	ind = np.argsort(ai) #trier les criteres dans l ordre
 	for p in range(pb["p"]):
 		res += ai[ind[p]]*w[p]
-	return true,res			   
+	return True,res			   
 				   
 """									  
 def int_choquet():
