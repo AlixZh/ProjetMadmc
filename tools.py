@@ -85,12 +85,12 @@ def y(pb,x):
     """
     pb : une liste des donnees du probleme
     x  : (une solution realisable) liste des indices des objets à prendre dans cette solution
-    revoie y : evaluation de x
+    revoie l'evaluation de x
     """
-    y=np.array([0]*pb["p"])
+    res=np.array([0]*pb["p"])
     for i in x:
-        y+=np.array(pb["v"][i])
-    return y
+        res+=np.array(pb["v"][i])
+    return res
 
 #----------------------------------------
 # fonction d initialisation
