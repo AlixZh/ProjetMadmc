@@ -159,13 +159,13 @@ def owa(pb,w,x):
 		print("sum(wi) != 1")
 		return False,res
 	ai = y(pb,x)
-	ind = np.argsort(ai) #trier les criteres dans l ordre
+	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
 	for p in range(pb["p"]):
-		res += ai[ind[p]]*w[p]
-	return True,res			   
+		res += ai[ind[pb["p"]-1-p]]*w[p]
+	return True,res		
 				   
 """									  
-def int_choquet():
+def int_choquet(pb,w,x):
     """
     pb : donnees du probleme a considerer
 	w : liste des poids de ponderation pour la somme ponderee
@@ -173,5 +173,9 @@ def int_choquet():
 	renvoie le resultat de la fonction d agregation somme ponderee, 
 	et true s il est valide, false, s il y a une erreur
     """
-"""	
-	
+	res = 0
+
+	ai = y(pb,x)	
+	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
+
+"""
