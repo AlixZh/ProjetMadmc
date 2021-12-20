@@ -38,13 +38,27 @@ def wmax(data,xi):
     return w // 2
 
 def get_donnees_pb(data,vp,xi):
-  """
-  data : dictionnaire des instances
-  vp : liste des indices de critères
-  xi : liste des indices des objets
-  renvoie une liste des donnees du probleme a considerer
-  """
-  res = []
-  for x in xi :
+    """
+    data : dictionnaire des instances
+    vp : liste des indices de critères
+    xi : liste des indices des objets
+    renvoie une liste des donnees du probleme a considerer
+    """
+    res = []
+    for x in xi :
     res.append(np.array([data["i"][x][p] for p in vp]))
-  return np.array(res)
+    return np.array(res)
+
+def pb(data,vp,xi):
+    """
+    data : dictionnaire des instances
+    vp : liste des indices de critères
+    xi : liste des indices des objets
+    renvoie une liste des donnees du probleme a considerer
+    res = dict()
+    res["n"] = len(xi)
+    res["W] = wmax(data,vp,xi)
+    res["i"] = get_donnees_pb(data,vp,xi)
+    res["vp"] = vp
+    res["xi"] = xi
+    return res
