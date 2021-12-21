@@ -58,15 +58,16 @@ def mmr(pb,fonc,Xrond,omega_theta):
 
 def echange_11(pb,x_init,obj_retire):
     """
-    pb : une dictionnaire des donnees du probleme
+    dict[str,Any] *list[int]*int -> list[set(int)]
+    pb : dictionnaire des donnees du probleme
     x_init : une solution trouvé solution 
-    obj_rerire : objet a retirer
+    obj_rerire : 
     renvoie la voisinage de cette solution
     """
     list_x_change=[]
     nb_obj=pb["n"]
-    w_=pb["wi"]#liste poids
-    v_=pb["v"]#liste profit
+    w_=pb["wi"] #liste poids
+    v_=pb["v"] #liste profit
     W=pb["W"]
     L=x_init.copy()
     L.remove(obj_retire)
@@ -78,21 +79,9 @@ def echange_11(pb,x_init,obj_retire):
             if(w_[obj]+poids_<=W):
                 #echange 1-1
                 L_.add(obj)
-                #des on peut encore ajouter des objets
-                poids_poss=w_[obj]+poids_
-                wi=w_.copy()
-                wi.pop(obj)
-                wi.pop(obj_retire)
-                obj_poss=list(np.where(wi<=(W-poids_poss))[0])
-                print(obj_poss,obj,obj_retire)
-                for op in obj_poss:
-                    if(w_[obj]+poids_poss<=W):
-                        poids_poss+=w_[obj]
-                        L_.add(op)
                 if(L_ not in list_x_change):
                     list_x_change.append(L_)
 
-    return list_x_change
     return list_x_change
 
 
