@@ -94,6 +94,7 @@ def y(pb,x):
     
 def echange_11(pb,x_init,obj_retire):
     """
+    dict[str,Any] *list[int]*int -> list[set(int)]
     pb : dictionnaire des donnees du probleme
     x_init : une solution trouvé solution 
     obj_rerire : 
