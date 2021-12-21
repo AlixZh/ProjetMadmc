@@ -212,7 +212,7 @@ def gen_capacite(pb,w=[]):
     return w, possibilite
 
 
-def int_choquet(pb,w,x,possibilite):
+def int_choquet(pb,w,x):
     """
     pb : donnees du probleme a considerer
 	w : liste des poids de ponderation pour la somme ponderee
@@ -221,7 +221,7 @@ def int_choquet(pb,w,x,possibilite):
 	et true s il est valide, false, s il y a une erreur
     """
 	res = 0
-
+	w, possibilite = gen_capacite(pb,w)
 	ai = y(pb,x)	
 	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
 	
