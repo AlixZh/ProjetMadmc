@@ -40,6 +40,69 @@ def voisinage(pb,x_init,obj_retire):
 
     return list_x_change
 
+
+class Node(object):
+    """docstring for Node"""
+    def __init__(self,v,parent=None,k=None):
+        self.v=np.array(v)
+        self.sons=[]
+        self.parent = parent
+        self.k=np.array(k)
+
+
+
+
+class QuadTree(object):
+    """docstring for QuadTree"""
+    def __init__(self,racine,p,nodes=[]):
+        self.racine = racine
+        self.nodes  = nodes
+        self.p      = p
+    def insert_tree(self,node,racine_local):
+
+        node.k=np.array([0]*self.p)
+        node.k[np.where(node.v<=racine_local.v)]=1
+        if(np.all(node.k==1) or np.all(node.k==0)):
+            return
+        s=racine_local.sons.copy()
+        for son in s:
+            #son est domine par node, supprimer son, reinserer les fils de son 
+            if(np.all(son.k>=node.k) and np.all(son.v<=node.v)):
+                self.nodes.remove(son)
+                racine_local.sons.remove(son)
+                for s_son in son.sons:
+                    s_son.parent=None
+                    self.nodes.remove(s_son)
+                    self.insert_tree(s_son,self.racine)
+        for son in racine_local.sons:
+            
+            #son domine node , pas besoin d inserer node
+            if(np.all(node.k>=son.k) and np.all(node.v<=son.v)):
+                return
+
+            #meme successorship , vefier s il y a dominance
+            if(np.all(son.k==node.k)):
+                #s il n y a pas dominance
+                if(not all(node.v<=son.v)):
+                    #print("-----------",son.k,node.k)
+                    return self.insert_tree(node,son)
+                else:
+                    return
+
+        
+        #inserer node
+        if(node.parent==None):
+            node.parent=racine_local
+            racine_local.sons.append(node)
+            self.nodes.append(node)
+        else:
+            if(node.parent!=racine_local):
+                node.parent.sons.remove(node)
+                node.parent=racine_local
+                racine_local.sons.append(node)
+        
+
+'''
 def MiseAJour(X,x):
     XX=np.array(X)
     xx=np.array(x)
@@ -71,65 +134,4 @@ def point_ideal(points_non_domine):
 def point_nadir(points_non_domine):
     #point_nadir en maximisation
     return np.min(np.array(points_non_domine),axis=0)
-
-
-class Node(object):
-    """docstring for Node"""
-    def __init__(self,v,sons=[],parent=None,k=None):
-        self.v=np.array(v)
-        self.sons=sons.copy()#nodes
-        self.parent = parent
-        self.k=np.array(k)
-
-        
-class QuadTree():
-    """docstring for QuadTree"""
-    def __init__(self,racine,p,nodes=[]):
-        self.racine = racine
-        self.nodes  = nodes
-        self.p      = p
-    def insert_tree(self,node,racine_local):
-        node.k=np.array([0]*self.p)
-        node.k[np.where(node.v>=racine_local.v)]=1
-        if(np.all(node.k==1) or np.all(node.k==0)):
-            return
-        for son in racine_local.sons:
-                        #son est domine par node, supprimer son, reinserer les fils de son 
-            if(np.all(son.k>=node.k) and np.all(son.v<=node.v)):
-                self.nodes.remove(son)
-                racine_local.sons.remove(son)
-                for s_son in son.sons:
-                    #s_son.parent=None
-                    #self.nodes.remove(s_son)
-                    self.insert_tree(s_son,racine_local)
-            
-        for son in racine_local.sons:
-            
-            #son domine node , pas besoin d inserer node
-            if(np.all(node.k>=son.k) and np.all(node.v<=son.v)):
-                return
-
-
-            #meme successorship , vefier s il y a dominance
-            if(np.all(son.k==node.k)):
-                #s il n y a pas dominance
-                if(not all(node.v<=son.v)):
-                    #print("-----------",son.k,node.k)
-                    return self.insert_tree(node,son)
-                else:
-                    return
-
-        
-        #inserer node
-        if(node.parent==None):
-            node.parent=racine_local
-            racine_local.sons.append(node)
-            self.nodes.append(node)
-        else:
-            if(node.parent!=racine_local):
-                node.parent.sons.remove(node)
-                node.parent=racine_local
-                racine_local.sons.append(node)
-
-
-
+'''
