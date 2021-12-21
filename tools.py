@@ -190,19 +190,25 @@ def owa(pb,w,x):
 	return True,res	
 
 
-def gen_capacite(pb):
+def gen_capacite(pb,w=[]):
     """
     pb : donnees du problem
     generer les poids de choquet
     """
-    w = [0]
+	nvw = true #il faut generer un w
+	if(w != []):
+		nvw = false #il ne faut pas generer de w
+	if(nvw):
+    	w = [0]
     possibilite = [[set()]]
     for i in range(1,pb["p"]-1):
         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
         possibilite.append([set(i) for i in comb])
-        w.append(np.random.random(len(comb)))
+		if(nvw):
+        	w.append(np.random.random(len(comb)))
 	possibilite.append([{i for i in range(pb["p"])}])
-	w.append(1)
+	if(nvw):
+		w.append(1)
     return w, possibilite
 
 
