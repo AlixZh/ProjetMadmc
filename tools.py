@@ -92,33 +92,7 @@ def y(pb,x):
         res+=np.array(pb["v"][i])
     return res
     
-def echange_11(pb,x_init,obj_retire):
-    """
-    dict[str,Any] *list[int]*int -> list[set(int)]
-    pb : dictionnaire des donnees du probleme
-    x_init : une solution trouvé solution 
-    obj_rerire : 
-    renvoie la voisinage de cette solution
-    """
-    list_x_change=[]
-    nb_obj=pb["n"]
-    w_=pb["wi"] #liste poids
-    v_=pb["v"] #liste profit
-    W=pb["W"]
-    L=x_init.copy()
-    L.remove(obj_retire)
-    poids_=np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
-    for obj in range(nb_obj) :
-        L_=set(L.copy())
 
-        if(obj not in x_init):
-            if(w_[obj]+poids_<=W):
-                #echange 1-1
-                L_.add(obj)
-                if(L_ not in list_x_change):
-                    list_x_change.append(L_)
-
-    return list_x_change
 #----------------------------------------
 # fonction d initialisation
 #----------------------------------------
