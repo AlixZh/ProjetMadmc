@@ -96,7 +96,8 @@ def omega_theta(pb,Xrond):
     generer tous les capacites de choquet ou poids de ponderation
     """
     o_t = {}
-    
+    for x in Xrond:
+    	
     return o_t
 
 def demande()
@@ -116,6 +117,9 @@ def rbls(pb,eps,max_it):
         sol_voisins = voisins(pb, sol)
         while( mmr(voisins, omega) > eps):
             (a,b) = demande(sol_voisins,omega)
+            
+            
+         
             
     
     
