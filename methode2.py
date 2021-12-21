@@ -58,29 +58,26 @@ def mmr(pb,fonc,Xrond,omega_theta):
 
 def echange_11(pb,x_init,obj_retire):
     """
-    dict[str,Any] *list[int]*int -> list[set(int)]
+    dict[str,Any] *list[int]*int -> set[set(int)]
     pb : dictionnaire des donnees du probleme
     x_init : une solution trouvé solution 
     obj_rerire : 
     renvoie la voisinage de cette solution
     """
-    list_x_change=[]
-    nb_obj=pb["n"]
-    w_=pb["wi"] #liste poids
-    v_=pb["v"] #liste profit
-    W=pb["W"]
-    L=x_init.copy()
+    list_x_change={} #contient les ensembles d objets voisinages de x_init et obj_retire
+    nb_obj = pb["n"]
+    w_ = pb["wi"] #liste poids
+    v_ = pb["v"] #liste profit
+    W = pb["W"]
+    L = set(x_init)
     L.remove(obj_retire)
-    poids_=np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
+    poids_ = np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
     for obj in range(nb_obj) :
-        L_=set(L.copy())
-
         if(obj not in x_init):
-            if(w_[obj]+poids_<=W):
+            if(w_[obj] + poids_ <= W):
                 #echange 1-1
-                L_.add(obj)
-                if(L_ not in list_x_change):
-                    list_x_change.append(L_)
+                L.add(obj)
+                list_x_change.append(L)
 
     return list_x_change
 
@@ -89,9 +86,18 @@ def voisins(pb,courante):
     """
     pb : dict du probleme des donnes
     """
-    
+    res = set()
+    for obj_retire in courante:
+        res.add(echange_11(pb,courante,obj_retire))
     return tous_les_voisins
-rbls(pb,eps,max_it):
+
+def omega_theta(pb,Xrond, ):
+    """
+    generer tous les capacites de choquet ou poids de ponderation
+    """
+
+
+def rbls(pb,eps,max_it):
     """
     pb : dict des donnees du probleme considere
     implementation du regret-based local search
@@ -102,7 +108,7 @@ rbls(pb,eps,max_it):
     ameliore = True
     while(ameliore and it < max_it) : 
         sol_voisins = echange_11(pb, sol)
-         while( mmr(sol_voisins, omega) > eps):
+         while( mmr(voisins, omega) > eps):
                 (a,b) = demande(sol_voisins,omega)
             
     
