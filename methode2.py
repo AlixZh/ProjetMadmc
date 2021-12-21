@@ -3,47 +3,70 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tools as *
 
-def pmr(fonc,pb,x,xprim,omega_theta):
+def pmr(pb,fonc,x,xprim,omega_theta):
     """
     fonc : fonction d agregation
     pb : donnees du probleme
     x : une solution realisable
     xprim une autre solution realisable
-    omega_theta : tuple(list[foat], list[int])
+    omega_theta : list[foat] contenant les capacites de choquet ou les poids ponderes
     renvoie la regret max de recommander x que xprim
     """
     yx = y(pb, x)
     yxprim = y(pb,xprim)
     max_trouve = 0 #valeur max trouve pour la difference
-    max_w = omega_theta[0][0] 
-    for i in range(omega_theta[0][1:]): 
-        if(fonct(pb,w,yx)-fontc(yxprim
-    return m
+    max_w = omega_theta[0][0]
+    for i in range(omega_theta[0]): 
+        courante = fonct(pb,w,yx)-fontc(pb,w,yxprim))
+        if( courante > max_trouve):
+            max_trouve = courante
+            max_w = w
+    return max_trouve,max_w
 
-def mr():
+def mr(pb,fonc,x,Xrond,omega_theta):
     """
     fonc : fonction d agregation
     x : une solution realisable
-    xprim une autre solution realisable
+    Xrond : ens des solutions realisables
     omega_theta
     renvoie la regret max de recommander x que tout autre element de X
     """
-    return
+    max_trouve = 0
+    max_w = omega_theta[0][0]
+    xmr = 0
+    for xprim in Xrond : 
+        if(xprim != x) : 
+            max_trouve_courante,max_w_courante = pmr(pb,fonc,x,xprim,omega_theta)
+            if(max_trouve_courante > max_trouve):
+                max_w = max_w_courante
+                max_trouve = max_trouve_courante
+                xmr = xprim
+    return max_trouve,max_w, xmr
                
-def mmr():
-    return
+def mmr(pb,fonc,Xrond,omega_theta):
+    max_trouve = 0
+    max_w = omega_theta[0][0]
+    xmmr = Xrond[0]
+    for x in Xrond:
+        max_trouve_courante,max_w_courante,xmr_courante = mmr(pb,fonc,x,Xrond,omega_theta)
+        if(max_trouve_courante > max_trouve):
+            max_w = max_w_courante
+            max_trouve = max_trouve_courante
+            xmr = xmr_courante
+            xmmr = x
+    return xmmr,max_trouve,max_w, xmr
 
 def echange_11(pb,x_init,obj_retire):
     """
-    pb : une liste des donnees du probleme
+    pb : une dictionnaire des donnees du probleme
     x_init : une solution trouvé solution 
-    obj_rerire : 
+    obj_rerire : objet a retirer
     renvoie la voisinage de cette solution
     """
     list_x_change=[]
     nb_obj=pb["n"]
-    w_=pb["wi"]#liste poids
-    v_=pb["v"]#liste profit
+    w_=pb["wi"] #liste poids
+    v_=pb["v"] #liste profit
     W=pb["W"]
     L=x_init.copy()
     L.remove(obj_retire)
@@ -57,14 +80,13 @@ def echange_11(pb,x_init,obj_retire):
                     list_x_change.append([obj]+L)
     return list_x_change
 
-def voisin(pb,courante):
-    """
-    pb : donnees du probleme
-    courante : solution courante
-    """
-    ens ={}
-    return ens
 
+def voisins(pb,courante):
+    """
+    pb : dict du probleme des donnes
+    """
+    
+    return tous_les_voisins
 rbls(pb,eps,max_it):
     """
     pb : dict des donnees du probleme considere
@@ -75,7 +97,7 @@ rbls(pb,eps,max_it):
     it = 0
     ameliore = True
     while(ameliore and it < max_it) : 
-        sol_voisins = voisinage(pb, sol)
+        sol_voisins = echange_11(pb, sol)
          while( mmr(sol_voisins, omega) > eps):
                 (a,b) = demande(sol_voisins,omega)
             
