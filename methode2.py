@@ -3,14 +3,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tools as *
 
-def pmr(fonc, yx, xprim):
+def pmr(fonc,pb,x,xprim,omega_theta):
     """
-    func : fonction d agregation
+    fonc : fonction d agregation
+    pb : donnees du probleme
+    x : une solution realisable
+    xprim une autre solution realisable
+    omega_theta : tuple(list[foat], list[int])
+    renvoie la regret max de recommander x que xprim
     """
+    yx = y(pb, x)
+    yxprim = y(pb,xprim)
+    max_trouve = 0 #valeur max trouve pour la difference
+    max_w = omega_theta[0][0] 
+    for i in range(omega_theta[0][1:]): 
+        if(fonct(pb,w,yx)-fontc(yxprim
     return m
 
 def mr():
+    """
+    fonc : fonction d agregation
+    x : une solution realisable
+    xprim une autre solution realisable
+    omega_theta
+    renvoie la regret max de recommander x que tout autre element de X
+    """
     return
+               
 def mmr():
     return
 
