@@ -65,19 +65,34 @@ def echange_11(pb,x_init,obj_retire):
     """
     list_x_change=[]
     nb_obj=pb["n"]
-    w_=pb["wi"] #liste poids
-    v_=pb["v"] #liste profit
+    w_=pb["wi"]#liste poids
+    v_=pb["v"]#liste profit
     W=pb["W"]
     L=x_init.copy()
     L.remove(obj_retire)
     poids_=np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
     for obj in range(nb_obj) :
-        if(obj!=obj_retire):
+        L_=set(L.copy())
+
+        if(obj not in x_init):
             if(w_[obj]+poids_<=W):
-                #ne peut qu'ajouter cet obj
-                if(any(v_[obj]>v_[obj_retire])):
-                    #ameliorer le profit
-                    list_x_change.append([obj]+L)
+                #echange 1-1
+                L_.add(obj)
+                #des on peut encore ajouter des objets
+                poids_poss=w_[obj]+poids_
+                wi=w_.copy()
+                wi.pop(obj)
+                wi.pop(obj_retire)
+                obj_poss=list(np.where(wi<=(W-poids_poss))[0])
+                print(obj_poss,obj,obj_retire)
+                for op in obj_poss:
+                    if(w_[obj]+poids_poss<=W):
+                        poids_poss+=w_[obj]
+                        L_.add(op)
+                if(L_ not in list_x_change):
+                    list_x_change.append(L_)
+
+    return list_x_change
     return list_x_change
 
 
