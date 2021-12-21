@@ -97,7 +97,7 @@ def omega_theta(pb,Xrond):
     """
     o_t = {}
     for x in Xrond:
-    	
+    	yx = y(pb,x)
     return o_t
 
 def demande()
