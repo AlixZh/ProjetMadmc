@@ -91,10 +91,15 @@ def voisins(pb,courante):
         res.add(echange_11(pb,courante,obj_retire))
     return tous_les_voisins
 
-def omega_theta(pb,Xrond, ):
+def omega_theta(pb,Xrond):
     """
     generer tous les capacites de choquet ou poids de ponderation
     """
+    o_t = {}
+    
+    return o_t
+
+def demande()
 
 
 def rbls(pb,eps,max_it):
@@ -105,11 +110,12 @@ def rbls(pb,eps,max_it):
     """
     sol = init_glouton(pb)
     it = 0
+    theta = set()
     ameliore = True
     while(ameliore and it < max_it) : 
-        sol_voisins = echange_11(pb, sol)
-         while( mmr(voisins, omega) > eps):
-                (a,b) = demande(sol_voisins,omega)
+        sol_voisins = voisins(pb, sol)
+        while( mmr(voisins, omega) > eps):
+            (a,b) = demande(sol_voisins,omega)
             
     
     
