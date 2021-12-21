@@ -195,12 +195,14 @@ def gen_capacite(pb):
     pb : donnees du problem
     generer les poids de choquet
     """
-    w = [0,1]
-    possibilite = [[set()],[{i for i in range(pb["p"])}]]
+    w = [0]
+    possibilite = [[set()]]
     for i in range(1,pb["p"]-1):
         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
         possibilite.append([set(i) for i in comb])
         w.append(np.random.random(len(comb)))
+	possibilite.append([{i for i in range(pb["p"])}])
+	w.append(1)
     return w, possibilite
 
 
