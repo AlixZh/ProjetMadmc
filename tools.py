@@ -110,7 +110,7 @@ def init_glouton(pb):
     sol=[] #liste contient les indices des objets prises
     s = 0  #somme des poids des objets ajouter dans sol      
     while(i >= 0):
-        if (s + pb["wi"][i] < data["W"]):
+        if (s + pb["wi"][i] <= pb["W"]):
             s += pb["wi"][i]  
             sol.append(indice[i])
         i -= 1
