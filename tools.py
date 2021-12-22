@@ -247,8 +247,10 @@ def gen_capacite(pb,w=[]):
     for i in range(1,pb["p"]-1):
         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
         possibilite.append([set(i) for i in comb])
-        if(nvw):
-            w.append(np.random.random(len(comb)))
+        if(nvw and i ==1): #generer les jeux de poids pour les singletons
+            w.append(np.random.random(len(comb))) 
+        else:
+        	w.append(np.random.random(len(comb))) #achanger
     possibilite.append([{i for i in range(pb["p"])}])
     if(nvw):
         w.append(1)

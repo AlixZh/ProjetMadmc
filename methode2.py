@@ -17,7 +17,7 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     max_trouve = 0 #valeur max trouve pour la difference
     max_w = omega_theta[0][0]
     for i in range(omega_theta[0]): 
-        courante = fonct(pb,w,yx)-fontc(pb,w,yxprim))
+        courante = fonct(pb,w,yx)-fontc(pb,w,yxprim)
         if( courante > max_trouve):
             max_trouve = courante
             max_w = w
@@ -91,7 +91,7 @@ def voisins(pb,courante):
         res.add(echange_11(pb,courante,obj_retire))
     return tous_les_voisins
 
-def omega_theta(pb,Xrond):
+def omega_theta(pb,Xrond): #achanger
     """
     generer tous les capacites de choquet ou poids de ponderation
     """
@@ -100,10 +100,18 @@ def omega_theta(pb,Xrond):
     	yx = y(pb,x)
     return o_t
 
-def demande()
+def demande(Xrond,omega):
+	"""
+	demander au decideur de renvoyer un couple (a,b) tq qu il prefere a à b
+	"""
+	a=[]
+	b=[]
+	return a,b
 
 
-def rbls(pb,eps,max_it):
+
+
+def rbls(pb,eps,max_it,fonc):
     """
     pb : dict des donnees du probleme considere
     implementation du regret-based local search
@@ -112,11 +120,21 @@ def rbls(pb,eps,max_it):
     sol = init_glouton(pb)
     it = 0
     theta = set()
+    o_t = {}
     ameliore = True
     while(ameliore and it < max_it) : 
-        sol_voisins = voisins(pb, sol)
-        while( mmr(voisins, omega) > eps):
+        sol_voisins = voisinage(pb, sol)
+        while( mmr(sol_voisins, omega) > eps):
             (a,b) = demande(sol_voisins,omega)
+            theta.add((a,b))
+           	o_t = omega_theta(pb,theta) #achanger
+        if(mr(sol,sol_voisins,o_t) > eps):
+        	sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
+        	it += 1
+        else:
+        	ameliore = false
+    return sol
+        
             
             
          
