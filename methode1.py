@@ -2,63 +2,32 @@ import tools as ts
 import numpy as np
 import matplotlib.pyplot as plt
 import quadtree as qdt
-def echange_11(pb,x_init,obj_retire):
-    """
-    pb : une liste des donnees du probleme
-    x_init : une solution trouve solution 
-    obj_retire : 
-    renvoie la voisinage de cette solution
-    """
-    list_x_change=[]
-    nb_obj=pb["n"]
-    w_=pb["wi"]#liste poids
-    v_=pb["v"]#liste profit
-    W=pb["W"]
-    L=x_init.copy()
-    L.remove(obj_retire)
-    poids_=np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
-    for obj in range(nb_obj) :
-        L_=set(L.copy())
 
-        if(obj not in x_init):
-            if(w_[obj]+poids_<=W):
-                #echange 1-1
-                L_.add(obj)
-                #des on peut encore ajouter des objets
-                poids_poss=w_[obj]+poids_
-                wi=w_.copy()
-                wi.pop(obj)
-                wi.pop(obj_retire)
-                obj_poss=list(np.where(wi<=(W-poids_poss))[0])
-                print(obj_poss,obj,obj_retire)
-                for op in obj_poss:
-                    if(w_[obj]+poids_poss<=W):
-                        poids_poss+=w_[obj]
-                        L_.add(op)
-                if(L_ not in list_x_change):
-                    list_x_change.append(L_)
+def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y):
+    x_init=p_init(pb)#population initiale
 
-    return list_x_change
-    
-def voisinage(pb,x_init):
-    list_voisinage=[]
-    for obj in x_init:
-        list_x_change=echange_11(pb,x_init,obj)
-        for x in list_x_change:
-            if(x not in list_voisinage):
-                list_voisinage.append(x)
-    return list_voisinage
+    racine=qdt.Node(x_init,ts.y(pb,x_init))
+    Xe_approx=qdt.Quadtree(pb["p"],racine.copy())#une approximation de l ensemble des solutions efficaces Xe
+    P=True
+    Pa=qdt.Quadtree(pb["p"])#population auxiliaire
 
-
-
-def PLS(pb,V=voisinage):
-    P0=[init_glouton(pb)]#population initiale
-    Xe_approx=P0.copy()#une approximation de l ensemble des solutions efficaces Xe
-    P=P0.copy()#population
-    Pa=[]#population auxiliaire
-    while (P!=[]):
+    while (P):
+        #generation de tous les voisins pp de chaque solution p dans P
         for p in P:
-            for pp in V(pb,P,p)
+            v=V(pb,P,p)
+            for pp in v:
+                #si pp n est pas domine par p
+                if(f(pb,pp)<=f(pb,p)):
+                    #a modifier
+                    if(Xe_approx.insert_tree(Node(pp,ts.y(pb,pp)))):
+                        Pa.insert_tree(Node(pp,ts.y(pb,pp)))
+
+        P=(Pa.racine==None)
+
+        Pa.clear_tree()
+
+
+
 '''
 def MiseAJour(X,x):
     XX=np.array(X)
