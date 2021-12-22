@@ -71,19 +71,19 @@ def dict_pb(data,vp,xi):
     return res
 
 def sol(pb,x):
-	"""
-	pb : dict des donnees du probleme
-	x : liste des indices des objets a prendre
-	renvoie la solution de x sous forme res[i] = 1 si l objet i est pris
-	"""
-	res = [0] * pb["n"]
-	for i in x:
-		res[i] = 1
-	return res
-	
+    """
+    pb : un dictionnaire des donnees du probleme a considerer
+    x : liste des indices des objets a prendre
+    renvoie la solution de x sous forme res[i] = 1 si l objet i est pris
+    """
+    res = [0] * pb["n"]
+    for i in x:
+        res[i] = 1
+    return res
+    
 def y(pb,x):
     """
-    pb : une liste des donnees du probleme
+    pb : un dictionnaire des donnees du probleme a considerer
     x  : (une solution realisable) liste des indices des objets à prendre dans cette solution
     revoie l'evaluation de x
     """
@@ -99,9 +99,8 @@ def y(pb,x):
 
 def init_glouton(pb):
     """
-    data : dictionnaire des instances
-    vp : liste des indices de critères
-    xi : liste des indices des objets
+    pb :  un dictionnaire des donnees du probleme a considerer
+
     renvoie une solution initiale 
     """
     somme_yi = np.sum(pb["v"],1) / pb["p"] #somme des vp des criteres a considerer
@@ -115,7 +114,75 @@ def init_glouton(pb):
             sol.append(indice[i])
         i -= 1
     return sol
+
+#----------------------------------------
+# fonction voisinage
+#----------------------------------------   
+
+def voisinage(pb,x_init):
+    """
+    pb : un dictionnaire des donnees du probleme a considerer
+    x_init: les indices des objets d une solution trouve
+
+    revoie la voisinage de cette solution trouver
+    """
+    list_voisinage=[]
+    for obj in x_init:
+        list_x_change=echange_11(pb,x_init,obj)
+        for x in list_x_change:
+            add_set_in_list(x,list_voisinage)
+    return list_voisinage
+
+def echange_11(pb,x_init,obj_retire):
+    """
+    pb : une liste des donnees du probleme
+    x_init : une solution trouve solution 
+    obj_retire : indice d objet retire
     
+    renvoie la voisinage de cette solution en retirant objet obj_retire
+    """
+    list_x_change=[]
+    nb_obj=pb["n"]
+    w_=pb["wi"]#liste poids
+
+    W=pb["W"]
+    L=x_init.copy()
+    L.remove(obj_retire)
+    poids_=np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
+    for obj in range(nb_obj) :
+        L_=set(L.copy())
+        if(obj not in x_init):
+            if(w_[obj]+poids_<=W):
+                #echange 1-1
+                L_.add(obj)
+                #des on peut encore ajouter des objets
+                poids_poss=w_[obj]+poids_
+                obj_poss=list(np.where(w_<=(W-poids_poss))[0])
+                for op in obj_poss:
+                    if(op==obj_retire or op in L_):
+                        continue
+                    if(w_[op]+poids_poss<=W):
+                        poids_poss+=w_[op]
+                        L_.add(op)
+                add_set_in_list(L_,list_x_change)
+    return list_x_change
+
+
+def add_set_in_list(set1,list2):
+    """
+    ajouter un set dans un list de set si :
+    il n est pas dedans et 
+    il n est pas un subset de set dans list
+
+    """
+    if(set1 not in list2):
+        add=True
+        for s in list2:
+            if(set1.issubset(s)):
+                add=False
+                break
+        if(add==True):
+            list2.append(set1)
 
 
 #----------------------------------------
@@ -126,44 +193,44 @@ def init_glouton(pb):
 def som_pond(pb,w,x):
     """
     pb : donnees du probleme a considerer
-	w : liste des poids de ponderation pour la somme ponderee
-	x : la liste des indices des objets a prendre dans le sac
-	renvoie le resultat de la fonction d agregation somme ponderee, 
-	et true s il est valide, false, s il y a une erreur
+    w : liste des poids de ponderation pour la somme ponderee
+    x : la liste des indices des objets a prendre dans le sac
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
     """
     res = 0
     if(len(w) != pb["p"]):
         print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
         return False,res
-	elif(round(np.sum(w)) != 1):
-		print("sum(wi) != 1")
-		return False,res
-	ai = y(pb,x)
-	for p in range(pb["p"]):
-		res = ai[p]*w[p]
-	return True, res								  
-									  
-            	
+    elif(round(np.sum(w)) != 1):
+        print("sum(wi) != 1")
+        return False,res
+    ai = y(pb,x)
+    for p in range(pb["p"]):
+        res = ai[p]*w[p]
+    return True, res                                  
+                                      
+                
 def owa(pb,w,x):
     """
     pb : donnees du probleme a considerer
-	w : liste des poids de ponderation pour la somme ponderee
-	x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
-	renvoie le resultat de la fonction d agregation somme ponderee, 
-	et true s il est valide, false, s il y a une erreur
+    w : liste des poids de ponderation pour la somme ponderee
+    x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
     """
-	res = 0
-	if(len(w) != pb["p"]):
-		print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
-		return False,res
-	elif(round(np.sum(w)) != 1):
-		print("sum(wi) != 1")
-		return False,res
-	ai = y(pb,x)
-	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
-	for p in range(pb["p"]):
-		res += ai[ind[pb["p"]-1-p]]*w[p]
-	return True,res	
+    res = 0
+    if(len(w) != pb["p"]):
+        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+        return False,res
+    elif(round(np.sum(w)) != 1):
+        print("sum(wi) != 1")
+        return False,res
+    ai = y(pb,x)
+    ind = np.argsort(ai) #trier les criteres dans l ordre croissant
+    for p in range(pb["p"]):
+        res += ai[ind[pb["p"]-1-p]]*w[p]
+    return True,res 
 
 
 def gen_capacite(pb,w=[]):
@@ -171,39 +238,39 @@ def gen_capacite(pb,w=[]):
     pb : donnees du problem
     generer les poids de choquet
     """
-	nvw = true #il faut generer un w
-	if(w != []):
-		nvw = false #il ne faut pas generer de w
-	if(nvw):
-    	w = [0]
+    nvw = true #il faut generer un w
+    if(w != []):
+        nvw = false #il ne faut pas generer de w
+    if(nvw):
+        w = [0]
     possibilite = [[set()]]
     for i in range(1,pb["p"]-1):
         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
         possibilite.append([set(i) for i in comb])
-		if(nvw):
-        	w.append(np.random.random(len(comb)))
-	possibilite.append([{i for i in range(pb["p"])}])
-	if(nvw):
-		w.append(1)
+        if(nvw):
+            w.append(np.random.random(len(comb)))
+    possibilite.append([{i for i in range(pb["p"])}])
+    if(nvw):
+        w.append(1)
     return w, possibilite
 
 
 def int_choquet(pb,w,x):
     """
     pb : donnees du probleme a considerer
-	w : liste des poids de ponderation pour la somme ponderee
-	x : la liste des indices des objets a prendre dans le sac 
-	renvoie le resultat de la fonction d agregation somme ponderee, 
-	et true s il est valide, false, s il y a une erreur
+    w : liste des poids de ponderation pour la somme ponderee
+    x : la liste des indices des objets a prendre dans le sac 
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
     """
-	res = 0
-	w, possibilite = gen_capacite(pb,w)
-	ai = y(pb,x)	
-	ind = np.argsort(ai) #trier les criteres dans l ordre croissant
-	
-	for i in range(0,pb["p"]):
-		if(i == 0):
-			res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
-		else : 
-			res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
-	return res
+    res = 0
+    w, possibilite = gen_capacite(pb,w)
+    ai = y(pb,x)    
+    ind = np.argsort(ai) #trier les criteres dans l ordre croissant
+    
+    for i in range(0,pb["p"]):
+        if(i == 0):
+            res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
+        else : 
+            res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
+    return res
