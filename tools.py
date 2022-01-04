@@ -189,6 +189,17 @@ def add_set_in_list(set1,list2):
 # fonction d agregation
 #----------------------------------------
 
+def gen_poids(taille):
+    """
+    taille : taille du vecteur poids
+    renvoie le vecteur poids sommant a 1
+    """
+    w = np.zeros(taille)
+    s = 1
+    for i in range(taille):
+        w[i] = np.random.random(0,s)
+        s = s - w[i]
+    return w
 
 def som_pond(pb,w,x):
     """
