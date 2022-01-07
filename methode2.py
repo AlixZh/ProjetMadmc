@@ -100,16 +100,24 @@ def omega_theta(pb,Xrond): #achanger
     	yx = y(pb,x)
     return o_t
 
-def demande(Xrond,omega):
+def demande_a_prefere_b(pb,a,b,w_etoile):
 	"""
-	demander au decideur de renvoyer un couple (a,b) tq qu il prefere a à b
+	demander au decideur si il prefere a à b
 	"""
-	a=[]
-	b=[]
-	return a,b
+	owa_a = owa(pb,w_etoire,a)
+	owa_b = owa(pb,w_etoire,b)
+	if(np.all(owa_a > owa_b):
+		return True		
+	return False
 
 
-
+def demande(pb,x_etoile,Xetoile,w_etoile):
+	omega_t = [w_etoile]
+	max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
+	if(demande_a_prefere_b(pb,x_etoile,xmr,w_etoile)):
+		return x_etoile,xmr
+	return xmr,x_etoile
+	
 
 def rbls(pb,eps,max_it,fonc):
     """
@@ -122,10 +130,12 @@ def rbls(pb,eps,max_it,fonc):
     theta = set()
     o_t = {}
     ameliore = True
+    w_etoile = gen_poids(mypb["p"]) # liste de poids cache du decideur
+    
     while(ameliore and it < max_it) : 
         sol_voisins = voisinage(pb, sol)
         while( mmr(sol_voisins, omega) > eps):
-            (a,b) = demande(sol_voisins,omega)
+            (a,b) = demande(pb,sol,sol_voisins,omega)
             theta.add((a,b))
            	o_t = omega_theta(pb,theta) #achanger
         if(mr(sol,sol_voisins,o_t) > eps):
