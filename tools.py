@@ -216,9 +216,10 @@ def gen_poids(taille):
     """
     w = np.zeros(taille)
     s = 1
-    for i in range(taille):
-        w[i] = np.random.random(0,s)
+    for i in range(taille-1):
+        w[i] = s*np.random.sample()
         s = s - w[i]
+    w[-1] = 1 - np.sum(w)
     return w
 
 def som_pond(pb,w,x):
