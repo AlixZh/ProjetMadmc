@@ -134,6 +134,8 @@ def rbls(pb,eps,max_it,fonc):
         else:
         	ameliore = false
     return sol
+    
+    #essaie
         
             
             
