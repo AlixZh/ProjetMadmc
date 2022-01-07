@@ -70,6 +70,26 @@ def dict_pb(data,vp,xi):
     res["xi"] = xi
     return res
 
+def get_pb_alea(data, n=20,p = 3):
+    """
+    data : dictionnaire de tous les instances
+    n : nombre d objets du probleme
+    p : nombre de critere a considerer
+    renvoie des donnees d un probleme avec n objets et 3 contraintes
+    """
+    xi = set()
+    vp = set()
+    while(len(xi) < n ): #pour eviter d avoir des criteres et objets identiques
+        x = np.random.randint(0,data["n"], 1)[0]
+        if(x not in xi):
+            xi.add(x)
+    while(len(vp) < p):
+        v = np.random.randint(1, len(data["nom_param"]), 1)[0]
+        if(v not in vp):
+            vp.add(v) 
+    return dict_pb(data,vp,xi)
+
+
 def sol(pb,x):
     """
     pb : un dictionnaire des donnees du probleme a considerer
