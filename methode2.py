@@ -90,13 +90,22 @@ def voisins(pb,courante):
         res.add(echange_11(pb,courante,obj_retire))
     return tous_les_voisins
 
-def omega_theta(pb,Xrond): #achanger
+def omega_theta(pb,fonc,theta): #achanger
     """
     generer tous les capacites de choquet ou poids de ponderation
     """
-    o_t = {}
-    for x in Xrond:
-    	yx = y(pb,x)
+    o_t = set()
+	set_w = set()
+	non_trouve = True
+	while(non_trouve):
+		non_trouve = False
+		w = gen_poids(pb["p"])
+		if( w not in set_w): # pour ne pas verifier pour des w deja trouve
+			for a,b in theta:
+				if(not demande_a_prefere_b(pb,fonc,a,b,w)):
+					non_trouve = True
+					break
+	o_t.add(w)
     return o_t
 
 def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
@@ -129,14 +138,14 @@ def rbls(pb,eps,max_it,fonc):
     theta = set()
     o_t = {}
     ameliore = True
-    w_etoile = gen_poids(mypb["p"]) # liste de poids cache du decideur
+    w_etoile = gen_poids(pb["p"]) # liste de poids cache du decideur
     
     while(ameliore and it < max_it) : 
         sol_voisins = voisinage(pb, sol)
         while( mmr(sol_voisins, omega) > eps):
             (a,b) = demande(pb,sol,sol_voisins,omega)
             theta.add((a,b))
-           	o_t = omega_theta(pb,theta) #achanger
+           	o_t = omega_theta(pb,fonc,theta) #achanger
         if(mr(sol,sol_voisins,o_t) > eps):
         	sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
         	it += 1
