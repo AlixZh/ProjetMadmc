@@ -15,8 +15,8 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     yx = y(pb, x)
     yxprim = y(pb,xprim)
     max_trouve = 0 #valeur max trouve pour la difference
-    max_w = omega_theta[0][0]
-    for i in range(omega_theta[0]): 
+    max_w = omega_theta[0]
+    for w in range(omega_theta[0]): 
         courante = fonct(pb,w,yx)-fontc(pb,w,yxprim)
         if( courante > max_trouve):
             max_trouve = courante
@@ -32,7 +32,7 @@ def mr(pb,fonc,x,Xrond,omega_theta):
     renvoie la regret max de recommander x que tout autre element de X
     """
     max_trouve = 0
-    max_w = omega_theta[0][0]
+    max_w = omega_theta[0]
     xmr = 0
     for xprim in Xrond : 
         if(xprim != x) : 
@@ -40,12 +40,12 @@ def mr(pb,fonc,x,Xrond,omega_theta):
             if(max_trouve_courante > max_trouve):
                 max_w = max_w_courante
                 max_trouve = max_trouve_courante
-                xmr = xprim
+                xmr = xprim #y*
     return max_trouve,max_w, xmr
                
 def mmr(pb,fonc,Xrond,omega_theta):
     max_trouve = 0
-    max_w = omega_theta[0][0]
+    max_w = omega_theta[0]
     xmmr = Xrond[0]
     for x in Xrond:
         max_trouve_courante,max_w_courante,xmr_courante = mmr(pb,fonc,x,Xrond,omega_theta)
