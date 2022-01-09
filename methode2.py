@@ -12,12 +12,11 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     omega_theta : list[foat] contenant les capacites de choquet ou les poids ponderes
     renvoie la regret max de recommander x que xprim
     """
-    yx = y(pb, x)
-    yxprim = y(pb,xprim)
+
     max_trouve = 0 #valeur max trouve pour la difference
     max_w = omega_theta[0]
-    for w in range(omega_theta[0]): 
-        courante = fonct(pb,w,yx)-fontc(pb,w,yxprim)
+    for w in omega_theta: 
+        courante = fonc(pb,w,x)[1]-fonc(pb,w,xprim)[1]
         if( courante > max_trouve):
             max_trouve = courante
             max_w = w
@@ -100,23 +99,23 @@ def omega_theta(pb,Xrond): #achanger
     	yx = y(pb,x)
     return o_t
 
-def demande_a_prefere_b(pb,a,b,w_etoile):
-	"""
-	demander au decideur si il prefere a à b
-	"""
-	owa_a = owa(pb,w_etoire,a)
-	owa_b = owa(pb,w_etoire,b)
-	if(np.all(owa_a > owa_b):
-		return True		
-	return False
+def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
+    """
+    demander au decideur si il prefere a à b
+    """
+    fw_a = fonc(pb,w_etoile,a)
+    fw_b = fonc(pb,w_etoile,b)
+    if(np.all(fw_a > fw_b)):
+        return True
+    return False
 
 
-def demande(pb,x_etoile,Xetoile,w_etoile):
-	omega_t = [w_etoile]
-	max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
-	if(demande_a_prefere_b(pb,x_etoile,xmr,w_etoile)):
-		return x_etoile,xmr
-	return xmr,x_etoile
+def demande(pb,fonc,x_etoile,Xetoile,w_etoile):
+    omega_t = [w_etoile]
+    max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
+    if(demande_a_prefere_b(pb,fonc,x_etoile,xmr,w_etoile)):
+        return x_etoile,xmr
+    return xmr,x_etoile
 	
 
 def rbls(pb,eps,max_it,fonc):
