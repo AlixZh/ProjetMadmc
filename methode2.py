@@ -125,7 +125,20 @@ def demande(pb,fonc,x_etoile,Xetoile,w_etoile):
     if(demande_a_prefere_b(pb,fonc,x_etoile,xmr,w_etoile)):
         return x_etoile[0],xmr.pop()
     return xmr[0],x_etoile.pop()
-	
+
+def gen_poids_precision(taille, precision):
+    """
+    taille : taille du vecteur poids
+    precision : nombre de chiffre apres la virgule
+    renvoie le vecteur poids sommant a 1
+    """
+    w = np.zeros(taille)
+    s = 1
+    for i in range(taille-1):
+        w[i] = round(s*np.random.sample(),precision)
+        s = s - w[i]
+    w[-1] = 1 - np.sum(w)
+    return w
 
 def rbls(pb,eps,max_it,fonc):
     """
