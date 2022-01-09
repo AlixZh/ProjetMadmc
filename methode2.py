@@ -114,8 +114,8 @@ def demande(pb,fonc,x_etoile,Xetoile,w_etoile):
     omega_t = [w_etoile]
     max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
     if(demande_a_prefere_b(pb,fonc,x_etoile,xmr,w_etoile)):
-        return x_etoile,xmr
-    return xmr,x_etoile
+        return x_etoile[0],xmr.pop()
+    return xmr[0],x_etoile.pop()
 	
 
 def rbls(pb,eps,max_it,fonc):
