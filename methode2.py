@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tools as *
+
 def pmr(pb,fonc,x,xprim,omega_theta):
     """
     fonc : fonction d agregation
@@ -12,16 +13,20 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     renvoie la regret max de recommander x que xprim
     """
 
-    max_trouve = 0 #valeur max trouve pour la difference
-    if(omega_theta == set()):
-        max_w = gen_poids(pb["p"])
-    else:
-        max_w = omega_theta.pop()
+    max_trouve = -1
+    max_w = -1
+    init = True
     for w in omega_theta: 
-        courante = fonc(pb,w,x)[1]-fonc(pb,w,xprim)[1]
+        if(init):
+            max_trouve = fonc(pb,w,x)[1]-fonc(pb,w,xprim)[1] #valeur max trouve pour la difference
+            max_w = next(iter(omega_theta))
+            init = False
+            break
         if( courante > max_trouve):
+            print("entrer dans pmr")
             max_trouve = courante
             max_w = w
+    print(max_trouve)
     return max_trouve,max_w
 
 def mr(pb,fonc,x,Xrond,omega_theta):
@@ -29,40 +34,38 @@ def mr(pb,fonc,x,Xrond,omega_theta):
     fonc : fonction d agregation
     x : une solution realisable
     Xrond : ens des solutions realisables
-    omega_theta : ensemble des jeux de poids possibles
+    omega_theta
     renvoie la regret max de recommander x que tout autre element de X
     """
-    max_trouve = 0
-    if(omega_theta == set()):
-        max_w = gen_poids(pb["p"])
-    else:
-        max_w = omega_theta.pop()
-    xmr = 0
+    max_trouve = -1
+    max_w = -1
+    xmr = -1
+    init = True
     for xprim in Xrond : 
-        if(xprim != x) : 
+        if(xprim != set(x)) : 
+            if(init):
+                max_trouve_courante,max_w_courante = pmr(pb,fonc,x,xprim,omega_theta)
+                init = False
+                break
             max_trouve_courante,max_w_courante = pmr(pb,fonc,x,xprim,omega_theta)
             if(max_trouve_courante > max_trouve):
                 max_w = max_w_courante
                 max_trouve = max_trouve_courante
                 xmr = xprim #y*
+    print("fin ----------")
     return max_trouve,max_w, xmr
                
 def mmr(pb,fonc,Xrond,omega_theta):
-    """
-    pb : dict du probleme
-    fonc : fonction d agregation utilisee
-    Xrond : sol realisable
-    omega_theta : ensemble des jeux de poids possibles
-    """
-    max_trouve = 0
-    if(omega_theta == set()):
-        max_w = gen_poids(pb["p"])
-    else:
-        max_w = omega_theta.pop()
-
+    max_trouve = -1
+    max_w = next(iter(omega_theta))
+    init = True
     xmmr = Xrond[0]
     xmr = -1
     for x in Xrond:
+        if(init):
+            max_trouve_courante,max_w_courante,xmr_courante = mr(pb,fonc,x,Xrond,omega_theta)
+            init = False
+            break
         max_trouve_courante,max_w_courante,xmr_courante = mr(pb,fonc,x,Xrond,omega_theta)
         if(max_trouve_courante > max_trouve):
             max_w = max_w_courante
