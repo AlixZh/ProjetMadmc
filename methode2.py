@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tools as *
-
 def pmr(pb,fonc,x,xprim,omega_theta):
     """
     fonc : fonction d agregation
@@ -14,7 +13,10 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     """
 
     max_trouve = 0 #valeur max trouve pour la difference
-    max_w = omega_theta[0]
+    if(omega_theta == set()):
+        max_w = gen_poids(pb["p"])
+    else:
+        max_w = omega_theta.pop()
     for w in omega_theta: 
         courante = fonc(pb,w,x)[1]-fonc(pb,w,xprim)[1]
         if( courante > max_trouve):
@@ -31,7 +33,10 @@ def mr(pb,fonc,x,Xrond,omega_theta):
     renvoie la regret max de recommander x que tout autre element de X
     """
     max_trouve = 0
-    max_w = omega_theta[0]
+    if(omega_theta == set()):
+        max_w = gen_poids(pb["p"])
+    else:
+        max_w = omega_theta.pop()
     xmr = 0
     for xprim in Xrond : 
         if(xprim != x) : 
@@ -44,16 +49,23 @@ def mr(pb,fonc,x,Xrond,omega_theta):
                
 def mmr(pb,fonc,Xrond,omega_theta):
     max_trouve = 0
-    max_w = omega_theta[0]
+    if(omega_theta == set()):
+        max_w = gen_poids(pb["p"])
+    else:
+        max_w = omega_theta.pop()
+
     xmmr = Xrond[0]
+    xmr = -1
     for x in Xrond:
-        max_trouve_courante,max_w_courante,xmr_courante = mmr(pb,fonc,x,Xrond,omega_theta)
+        max_trouve_courante,max_w_courante,xmr_courante = mr(pb,fonc,x,Xrond,omega_theta)
         if(max_trouve_courante > max_trouve):
             max_w = max_w_courante
             max_trouve = max_trouve_courante
             xmr = xmr_courante
             xmmr = x
     return xmmr,max_trouve,max_w, xmr
+
+
 
 def echange_11(pb,x_init,obj_retire):
     """
