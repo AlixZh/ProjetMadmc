@@ -131,7 +131,7 @@ def init_glouton(pb):
     while(i >= 0):
         if (s + pb["wi"][i] <= pb["W"]):
             s += pb["wi"][i]  
-            sol.append(indice[i])
+            sol.append(i)
         i -= 1
     return sol
 
