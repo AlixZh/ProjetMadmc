@@ -29,7 +29,7 @@ def mr(pb,fonc,x,Xrond,omega_theta):
     fonc : fonction d agregation
     x : une solution realisable
     Xrond : ens des solutions realisables
-    omega_theta
+    omega_theta : ensemble des jeux de poids possibles
     renvoie la regret max de recommander x que tout autre element de X
     """
     max_trouve = 0
@@ -48,6 +48,12 @@ def mr(pb,fonc,x,Xrond,omega_theta):
     return max_trouve,max_w, xmr
                
 def mmr(pb,fonc,Xrond,omega_theta):
+    """
+    pb : dict du probleme
+    fonc : fonction d agregation utilisee
+    Xrond : sol realisable
+    omega_theta : ensemble des jeux de poids possibles
+    """
     max_trouve = 0
     if(omega_theta == set()):
         max_w = gen_poids(pb["p"])
