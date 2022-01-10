@@ -95,17 +95,17 @@ def omega_theta(pb,fonc,theta): #achanger
     generer tous les capacites de choquet ou poids de ponderation
     """
     o_t = set()
-	set_w = set()
-	non_trouve = True
-	while(non_trouve):
-		non_trouve = False
-		w = gen_poids(pb["p"])
-		if( w not in set_w): # pour ne pas verifier pour des w deja trouve
-			for a,b in theta:
-				if(not demande_a_prefere_b(pb,fonc,a,b,w)):
-					non_trouve = True
-					break
-	o_t.add(w)
+    set_w = set()
+    non_trouve = True
+    while(non_trouve):
+        non_trouve = False
+        w = gen_poids(pb["p"])
+        if( w not in set_w): # pour ne pas verifier pour des w deja trouve
+            for a,b in theta:
+                if(not demande_a_prefere_b(pb,fonc,a,b,w)):
+                    non_trouve = True
+                    break
+    o_t.add(w)
     return o_t
 
 def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
@@ -149,21 +149,21 @@ def rbls(pb,eps,max_it,fonc):
     sol = init_glouton(pb)
     it = 0
     theta = set()
-    o_t = {}
+    o_t = set()
     ameliore = True
     w_etoile = gen_poids(pb["p"]) # liste de poids cache du decideur
     
     while(ameliore and it < max_it) : 
         sol_voisins = voisinage(pb, sol)
-        while( mmr(sol_voisins, omega) > eps):
-            (a,b) = demande(pb,sol,sol_voisins,omega)
+        while( mmr(pb,fonc,sol_voisins, o_t)[1] > eps):
+            (a,b) = demande(pb,sol,sol_voisins,[w_etoile])
             theta.add((a,b))
-           	o_t = omega_theta(pb,fonc,theta) #achanger
-        if(mr(sol,sol_voisins,o_t) > eps):
-        	sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
-        	it += 1
+            o_t = omega_theta(pb,fonc,theta) #achanger
+        if(mr(pb,fonc,sol,sol_voisins,o_t)[0] > eps):
+            sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
+            it += 1
         else:
-        	ameliore = false
+            ameliore = False
     return sol
     
     #essaie
