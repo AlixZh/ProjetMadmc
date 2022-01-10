@@ -117,7 +117,7 @@ def omega_theta(pb,fonc,theta): #achanger
     non_trouve = True
     while(non_trouve):
         non_trouve = False
-        w = gen_poids(pb["p"])
+        w = tuple(gen_poids(pb["p"]))
         if( w not in set_w): # pour ne pas verifier pour des w deja trouve
             for a,b in theta:
                 if(not demande_a_prefere_b(pb,fonc,a,b,w)):
@@ -130,6 +130,8 @@ def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
     """
     demander au decideur si il prefere a à b
     """
+    print("a ",a)
+    print("b",b)
     fw_a = fonc(pb,w_etoile,a)
     fw_b = fonc(pb,w_etoile,b)
     if(np.all(fw_a > fw_b)):
@@ -138,11 +140,12 @@ def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
 
 
 def demande(pb,fonc,x_etoile,Xetoile,w_etoile):
-    omega_t = [w_etoile]
+    omega_t = {w_etoile}
     max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
     if(demande_a_prefere_b(pb,fonc,x_etoile,xmr,w_etoile)):
         return x_etoile[0],xmr.pop()
-    return xmr[0],x_etoile.pop()
+    print(xmr,x_etoile)
+    return xmr,x_etoile
 
 def gen_poids_precision(taille, precision):
     """
@@ -168,21 +171,26 @@ def rbls(pb,eps,max_it,fonc):
     it = 0
     theta = set()
     o_t = set()
+    o_t.add(tuple(gen_poids(pb["p"])))
     ameliore = True
-    w_etoile = gen_poids(pb["p"]) # liste de poids cache du decideur
+    w_etoile = tuple(gen_poids(pb["p"])) # liste de poids cache du decideur
     
     while(ameliore and it < max_it) : 
         sol_voisins = voisinage(pb, sol)
+        print("mmr ",mmr(pb,fonc,sol_voisins, o_t)[1])
         while( mmr(pb,fonc,sol_voisins, o_t)[1] > eps):
-            (a,b) = demande(pb,sol,sol_voisins,[w_etoile])
+            print("entrer ")
+            (a,b) = demande(pb,fonc,sol,sol_voisins,w_etoile)
             theta.add((a,b))
             o_t = omega_theta(pb,fonc,theta) #achanger
+            print("coc")
         if(mr(pb,fonc,sol,sol_voisins,o_t)[0] > eps):
+            print("cocc")
             sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
             it += 1
         else:
             ameliore = False
-    return sol
+    return sol,o_t,it
     
     #essaie
         
