@@ -112,6 +112,18 @@ def y(pb,x):
         res+=np.array(pb["v"][i])
     return res
     
+def y_sol(pb,x):
+    """
+    pb : un dictionnaire des donnees du probleme a considerer
+    x  : (une solution realisable) liste des objets à prendre dans cette solution
+    revoie l'evaluation de x, contient que des 1 et 0
+    """
+    res=np.array([0]*pb["p"])
+    for i in range(pb["n"]):
+    	if(x[i] == 1):
+        	res+=np.array(pb["v"][i])
+    return res
+
 
 #----------------------------------------
 # fonction d initialisation
@@ -222,11 +234,13 @@ def gen_poids(taille):
     w[-1] = 1 - np.sum(w)
     return w
 
-def som_pond(pb,w,x):
+def som_pond(pb,w,x,list_ind = True):
     """
     pb : donnees du probleme a considerer
     w : liste des poids de ponderation pour la somme ponderee
-    x : la liste des indices des objets a prendre dans le sac
+    x : la liste des indices des objets a prendre dans le sac ou la liste contenant des 1 et 0
+    list_ind si x est la liste des indices des objets
+    
     renvoie le resultat de la fonction d agregation somme ponderee, 
     et true s il est valide, false, s il y a une erreur
     """
@@ -237,17 +251,22 @@ def som_pond(pb,w,x):
     elif(round(np.sum(w)) != 1):
         print("sum(wi) != 1")
         return False,res
-    ai = y(pb,x)
+    if(list_ind):
+    	ai = y(pb,x)
+    else:
+    	ai = y_sol(pb,x)
     for p in range(pb["p"]):
         res = ai[p]*w[p]
     return True, res                                  
                                       
                 
-def owa(pb,w,x):
+def owa(pb,w,x,list_ind = True):
     """
     pb : donnees du probleme a considerer
     w : liste des poids de ponderation pour la somme ponderee
-    x : la liste des objets a prendre dans le sac x[i] = 1 , prendre l'objet pb["xi"][i]
+    x : la liste des indices des objets a prendre dans le sac ou la liste contenant des 1 et 0
+    list_ind si x est la liste des indices des objets
+    
     renvoie le resultat de la fonction d agregation somme ponderee, 
     et true s il est valide, false, s il y a une erreur
     """
@@ -258,7 +277,10 @@ def owa(pb,w,x):
     elif(round(np.sum(w)) != 1):
         print("sum(wi) != 1")
         return False,res
-    ai = y(pb,x)
+    if(list_ind):
+    	ai = y(pb,x)
+    else:
+    	ai = y_sol(pb,x)
     ind = np.argsort(ai) #trier les criteres dans l ordre croissant
     for p in range(pb["p"]):
         res += ai[ind[pb["p"]-1-p]]*w[p]
