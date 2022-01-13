@@ -1,7 +1,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import tools as *
+
 
 def pmr(pb,fonc,x,xprim,omega_theta):
     """
@@ -18,7 +18,7 @@ def pmr(pb,fonc,x,xprim,omega_theta):
     init = True
     for w in omega_theta: 
         if(init):
-            max_trouve = fonc(pb,w,x)[1]-fonc(pb,w,xprim)[1] #valeur max trouve pour la difference
+            max_trouve = fonc(pb,w,x)-fonc(pb,w,xprim) #valeur max trouve pour la difference
             max_w = next(iter(omega_theta))
             init = False
             break
@@ -74,42 +74,6 @@ def mmr(pb,fonc,Xrond,omega_theta):
             xmmr = x
     return xmmr,max_trouve,max_w, xmr
 
-
-
-def echange_11(pb,x_init,obj_retire):
-    """
-    dict[str,Any] *list[int]*int -> set[set(int)]
-    pb : dictionnaire des donnees du probleme
-    x_init : une solution trouvé solution 
-    obj_rerire : 
-    renvoie la voisinage de cette solution
-    """
-    list_x_change={} #contient les ensembles d objets voisinages de x_init et obj_retire
-    nb_obj = pb["n"]
-    w_ = pb["wi"] #liste poids
-    v_ = pb["v"] #liste profit
-    W = pb["W"]
-    L = set(x_init)
-    L.remove(obj_retire)
-    poids_ = np.sum([w_[i] for i in x_init],axis=0)-w_[obj_retire]#poids sans obj_retire
-    for obj in range(nb_obj) :
-        if(obj not in x_init):
-            if(w_[obj] + poids_ <= W):
-                #echange 1-1
-                L.add(obj)
-                list_x_change.append(L)
-
-    return list_x_change
-
-
-def voisins(pb,courante):
-    """
-    pb : dict du probleme des donnes
-    """
-    res = set()
-    for obj_retire in courante:
-        res.add(echange_11(pb,courante,obj_retire))
-    return tous_les_voisins
 
 def omega_theta(pb,fonc,theta): #achanger
     """
@@ -180,7 +144,7 @@ def rbls(pb,eps,max_it,fonc):
     
     while(ameliore and it < max_it) : 
         sol_voisins = voisinage(pb, sol)
-        print("mmr ",mmr(pb,fonc,sol_voisins, o_t)[1])
+        print("mmr ",mmr(pb,fonc,sol_voisins, o_t))
         while( mmr(pb,fonc,sol_voisins, o_t)[1] > eps):
             print("entrer ")
             (a,b) = demande(pb,fonc,sol,sol_voisins,w_etoile)
@@ -196,11 +160,3 @@ def rbls(pb,eps,max_it,fonc):
     return sol,o_t,it
     
     #essaie
-        
-            
-            
-         
-            
-    
-    
-    
