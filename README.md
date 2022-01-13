@@ -29,4 +29,6 @@ PL.py : contient les PL
 
 ## Exécution
 
-Lancer le fichier test.py
+Lancer le fichier test1.py pour executer la méthode 1
+Lancer le fichier test1.py pour executer la méthode 1
+Lancer le fichier test_comp.py pour obtenir les courbes de comparaison
