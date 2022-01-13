@@ -121,7 +121,7 @@ def y_sol(pb,x):
     res=[0]*pb["p"]
     for i in range(pb["n"]):
         for p in range(pb["p"]):
-            res[p] = pb["v"][i][p]*x[i]
+            res[p] += pb["v"][i][p]*x[i]
     return res
 
 
@@ -256,7 +256,7 @@ def som_pond(pb,w,x,list_ind = True):
     else:
     	ai = y_sol(pb,x)
     for p in range(pb["p"]):
-        res = ai[p]*w[p]
+        res += ai[p]*w[p]
     return res                                  
                                       
                 
