@@ -8,8 +8,8 @@ class Node(object):
         sons: list de fils
         parent : node pere
         """
-    def __init__(self,v,parent=None,k=None):
-        #self.solution=solution
+    def __init__(self,solution,v,parent=None,k=None):
+        self.solution=solution
         self.v=np.array(v)
         self.sons=[]
         self.parent = parent
@@ -18,6 +18,9 @@ class Node(object):
 class QuadTree(object):
     """
     presentation des solutions non dominee dans le quadtree(maximisation)
+    racine : type node
+    nodes : list des nodes les solutions non dominee sans racine
+    p : nb de critere
     """
     def __init__(self,p,racine=None,nodes=[]):
         self.racine = racine
