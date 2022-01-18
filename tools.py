@@ -271,9 +271,30 @@ def owa(pb,w,x,list_ind = True):
     ai = y_sol(pb,x,list_ind)
     ind = np.argsort(ai) #trier les criteres dans l ordre croissant
     for p in range(pb["p"]):
-        res += ai[ind[pb["p"]-1-p]]*w[p]
+        res += ai[ind[p]]*w[p]
     return res 
 
+def owa_Y(pb,w,y,list_ind = True):
+    """
+    pb : donnees du probleme a considerer
+    w : liste des poids de ponderation pour la somme ponderee
+    x : la liste des indices des objets a prendre dans le sac ou la liste contenant des 1 et 0
+    list_ind si x est la liste des indices des objets
+    
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
+    """
+    res = 0
+    if(len(w) != pb["p"]):
+        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+        return res
+    elif(round(np.sum(w)) != 1):
+        print("sum(wi) != 1")
+        return res
+    ind = np.argsort(y) #trier les criteres dans l ordre croissant
+    for p in range(pb["p"]):
+        res += y[ind[p]]*w[p]
+    return res 
 
 def gen_capacite(pb,w=[]):
     """
