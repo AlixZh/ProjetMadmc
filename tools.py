@@ -101,27 +101,21 @@ def sol(pb,x):
         res[i] = 1
     return res
     
-def y(pb,x):
-    """
-    pb : un dictionnaire des donnees du probleme a considerer
-    x  : (une solution realisable) liste des indices des objets à prendre dans cette solution
-    revoie l'evaluation de x
-    """
-    res=np.array([0]*pb["p"])
-    for i in x:
-        res+=np.array(pb["v"][i])
-    return res
-    
-def y_sol(pb,x):
+def y_sol(pb,x,list_ind = True):
     """
     pb : un dictionnaire des donnees du probleme a considerer
     x  : (une solution realisable) liste des objets à prendre dans cette solution
     revoie l'evaluation de x, contient que des 1 et 0
     """
     res=[0]*pb["p"]
-    for i in range(pb["n"]):
-        for p in range(pb["p"]):
-            res[p] += pb["v"][i][p]*x[i]
+    if(list_ind):
+        res=np.array([0]*pb["p"])
+        for i in x:
+            res+=np.array(pb["v"][i])
+    else:
+        for i in range(pb["n"]):
+            for p in range(pb["p"]):
+                res[p] += pb["v"][i][p]*x[i]
     return res
 
 
@@ -251,10 +245,7 @@ def som_pond(pb,w,x,list_ind = True):
     elif(round(np.sum(w)) != 1):
         print("sum(wi) != 1")
         return res
-    if(list_ind):
-    	ai = y(pb,x)
-    else:
-    	ai = y_sol(pb,x)
+    ai = y_sol(pb,x,list_ind)
     for p in range(pb["p"]):
         res += ai[p]*w[p]
     return res                                  
@@ -277,10 +268,7 @@ def owa(pb,w,x,list_ind = True):
     elif(round(np.sum(w)) != 1):
         print("sum(wi) != 1")
         return res
-    if(list_ind):
-    	ai = y(pb,x)
-    else:
-    	ai = y_sol(pb,x)
+    ai = y_sol(pb,x,list_ind)
     ind = np.argsort(ai) #trier les criteres dans l ordre croissant
     for p in range(pb["p"]):
         res += ai[ind[pb["p"]-1-p]]*w[p]
@@ -330,3 +318,4 @@ def int_choquet(pb,w,x):
         else : 
             res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
     return res
+
