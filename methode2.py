@@ -93,26 +93,11 @@ def omega_theta(pb,fonc,theta): #achanger
     o_t.add(w)
     return o_t
 
-def demande_a_prefere_b(pb,fonc,a,b,w_etoile):
-    """
-    demander au decideur si il prefere a à b
-    """
-    print("a ",a)
-    print("b",b)
-    fw_a = fonc(pb,w_etoile,a)
-    fw_b = fonc(pb,w_etoile,b)
-    if(np.all(fw_a > fw_b)):
-        return True
-    return False
-
-
-def demande(pb,fonc,x_etoile,Xetoile,w_etoile):
-    omega_t = {w_etoile}
-    max_trouve,max_w, xmr = mr(pb,fonc,x_etoile,Xetoile,omega_t)
-    if(demande_a_prefere_b(pb,fonc,x_etoile,xmr,w_etoile)):
-        return x_etoile[0],xmr.pop()
-    print(xmr,x_etoile)
-    return xmr,x_etoile
+def demande(y_etoile,voisinage_Y,preferences,w_etoile,fonc = som_pond_Y,fonc_pmr=PMR_SP):
+    ymr,res = MR(y_etoile,voisinage_Y,preferences,fonc_pmr)
+    if(y_prefere_yprim(fonc,y_etoile,ymr,w_etoile)):
+        return y_etoile,ymr
+    return ymr,y_etoile
 
 def gen_poids_precision(taille, precision):
     """
