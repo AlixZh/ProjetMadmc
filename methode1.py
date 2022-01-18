@@ -23,7 +23,7 @@ def som_pond_Y(w,y):
         res += y[i]*w[i]
     return res 
 
-def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y):
+def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
     x_init=p_init(pb)#population initiale
     #print("x_init",x_init)
     racine=qdt.Node(x_init,f(pb,x_init))
@@ -52,10 +52,10 @@ def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y):
 
     return X,Y
 
-def PMR_SP(x,y,P=[]):
+def PMR_SP(y,yprim,P=[]):
     """
-    x(array) : une evaluation d'une solution realisable
-    y(array) : une autre evaluation
+    y(array) : une evaluation d'une solution realisable
+    yprim(array) : une autre evaluation
     lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
     lambda_max(float) : borne sup de lambda possible
     revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
@@ -64,9 +64,9 @@ def PMR_SP(x,y,P=[]):
     env.setParam("OutputFlag",0)
     env.start()
 
-    if(len(x)!=len(y)):
-        print ("erreur len(x)!=len(y)")
-    nbvar=len(x) #nombre d objet possible
+    if(len(y)!=len(yprim)):
+        print ("erreur len(y)!=len(yprim)")
+    nbvar=len(y) #nombre d objet possible
     colonnes = range(nbvar)
 
     #matrice des contraintes
@@ -74,7 +74,7 @@ def PMR_SP(x,y,P=[]):
     # Second membre
     b = 1.0
     #parametre de fonction objectif
-    c=(y-x)
+    c=(yprim-y)
 
     m = Model("PMR_SP",env=env)     
  # declaration variables de decision
@@ -93,9 +93,9 @@ def PMR_SP(x,y,P=[]):
     m.setObjective(obj,GRB.MAXIMIZE)
     #print(m)
     # Definition des contraintes
-    m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) <= b, "Contrainte%d" % 1)
-    for x1,y1 in P:
-        m.addConstr(quicksum(lambda_[j]*(y1-x1)[j] for j in colonnes) <= 0.0)
+    m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)
+    for yi,yprim_i in P:
+        m.addConstr(quicksum(lambda_[j]*(yi-yprim_i)[j] for j in colonnes) >= 0.0)
 
     # Resolution
     m.optimize()
@@ -108,25 +108,23 @@ def PMR_SP(x,y,P=[]):
     # print('Valeur de la fonction objectif :', m.objVal)
     return res,m.objVal
 
-def PMR_OWA(xx,yy,P=[]):
+def PMR_OWA(y,yprim,P=[]):
     """
-    x(array) : une evaluation d'une solution realisable
-    y(array) : une autre evaluation
-    lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
-    lambda_max(float) : borne sup de lambda possible
+    y(array) : une evaluation d'une solution realisable
+    yprim(array) : une autre evaluation
     revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
     """
     env = Env(empty=True)
     env.setParam("OutputFlag",0)
     env.start()
 
-    x=xx.copy()
-    y=yy.copy()
-    x.sort()
-    y.sort()
-    if(len(x)!=len(y)):
+    y_=y.copy()
+    yprim_=yprim.copy()
+    y_.sort()
+    yprim_.sort()
+    if(len(y_)!=len(yprim_)):
         print ("erreur len(x)!=len(y)")
-    nbvar=len(x) #nombre d objet possible
+    nbvar=len(y_) #nombre d objet possible
     colonnes = range(nbvar)
 
     #matrice des contraintes
@@ -134,7 +132,7 @@ def PMR_OWA(xx,yy,P=[]):
     # Second membre
     b = 1.0
     #parametre de fonction objectif
-    c=(y-x)
+    c=(yprim_-y_)
 
     m = Model("PMR_SP",env=env)     
  # declaration variables de decision
@@ -173,81 +171,91 @@ def PMR_OWA(xx,yy,P=[]):
     # print('Valeur de la fonction objectif :', m.objVal)
     return res,m.objVal
 
-def MR(x,X,P=[],fonc_pmr=PMR_SP):
+def MR(y,Y,P=[],fonc_pmr=PMR_SP):
     """
-    x(array) : une evaluation d'une solution realisable
-    X(list(array)) : ensemble d'evaluations possibles
+    y(array) : une evaluation d'une solution realisable
+    Y(list(array)) : ensemble d'evaluations possibles
     lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
     lambda_max(float) : borne sup de lambda possible
     fonc_pmr : programmation lineaire de pmr pour un type de fonction aggregation(PMR_SP:somme pondérée, PMR_OWA:OWA ou PMR_IC:l’intégrale de Choquet)
-    revoie tuple(list,float): y dans list X telle qu'il maximise (pmr)(le pire des regrets associé à la recommandation de l'alternative x à la place
-de toute autre alternative dans X ), et la valeur max
+    revoie tuple(list,float): y dans list Y telle qu'il maximise (pmr)(le pire des regrets associé à la recommandation de l'alternative Y à la place
+de toute autre alternative dans Y ), et la valeur max
     """
 
-    arg_res_mr=np.array([0.0]*len(x))
+    arg_res_mr=np.array([0.0]*len(y))
     res_mr=float("-inf")
-    for y in X:
-        if(np.all(x==y)):
+    for yprim in Y:
+        if(np.all(y==yprim)):
             continue
         # if((x,y) in P):
         #     continue
-        arg_res_pmr,res_pmr=fonc_pmr(x,y,P)
+        arg_res_pmr,res_pmr=fonc_pmr(y,yprim,P)
         if(res_pmr>=res_mr):
-            arg_res_mr=y
+            arg_res_mr=yprim
             res_mr=res_pmr
     return arg_res_mr,res_mr
-def MMR(X,P=[],fonc_pmr=PMR_SP):
+def MMR(Y,P=[],fonc_pmr=PMR_SP):
     """
-    X(list(array)) : ensemble d'evaluations possibles
+    Y(list(array)) : ensemble d'evaluations possibles
     lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
     lambda_max(float) : borne sup de lambda possible
-    revoie array,float : x dans X qui donne Minimax Regret et minimax regret
+    revoie array,float : y dans Y qui donne Minimax Regret et minimax regret
     """
-    arg_res_mmr=np.array([0.0]*len(X[0]))
+    arg_res_mmr=np.array([0.0]*len(Y[0]))
     res_mmr=float("inf")
-    for x in X:
-        arg_res_mr,res_mr=MR(x,X,P,fonc_pmr)
+    for y in Y:
+        arg_res_mr,res_mr=MR(y,Y,P,fonc_pmr)
         if(res_mr<=res_mmr):
-            arg_res_mmr=x
+            arg_res_mmr=y
             res_mmr=res_mr
     return arg_res_mmr,res_mmr
 
 
-def solution_optimal(pb,X,lambda_etoile,fonc=som_pond_Y,fonc_PMR=PMR_SP):
+def solution_optimal(pb,lambda_etoile,fonc=som_pond_Y,fonc_PMR=PMR_SP):
     """
-    X : ensemble de solutions generer par PLS
+    Y : ensemble d'evaluation de solutions generer par PLS
     fonc : fonction d'aggregation 
     lambda_etoile : vecteur poids pour decideur
     fonc_PMR: programmation lineaire de pmr pour un type de fonction aggregation(PMR_SP:somme pondérée, PMR_OWA:OWA ou PMR_IC:l’intégrale de Choquet)
     """
+    X,Y=PLS(pb)
     P=[]
-    xp_etoile,val_xp=MMR(X,fonc_pmr=fonc_PMR)
-    yp_etoile,val_yp=MR(xp_etoile,X,fonc_pmr=fonc_PMR)
-    if(x_prefere_y(pb,fonc,xp_etoile,yp_etoile,lambda_etoile)):
-        P.append((xp_etoile,yp_etoile))
+    y,val_mmr=MMR(Y,fonc_pmr=fonc_PMR)
+    yprim,val_mr=MR(y,Y,fonc_pmr=fonc_PMR)
+    if(y_prefere_yprim(fonc,y,yprim,lambda_etoile)):
+        P.append((y,yprim))
     else:
-        P.append((yp_etoile,xp_etoile))
-    i=0
-    while (MMR(X,P=P,fonc_pmr=fonc_PMR)[1]>0. and i<10):
-        xp_etoile,val_xp=MMR(X,P=P,fonc_pmr=fonc_PMR)
-        yp_etoile,val_yp=MR(xp_etoile,X,P=P,fonc_pmr=fonc_PMR)
-        if(x_prefere_y(pb,fonc,xp_etoile,yp_etoile,lambda_etoile)):
-            P.append((xp_etoile,yp_etoile))
+        P.append((yprim,y))
+    i=0#nb de question posé
+    print("\niteration ",i,val_mmr)
+    while (val_mmr>0. and i<len(Y)):
+        y,val_mmr=MMR(Y,P=P,fonc_pmr=fonc_PMR)
+        yprim,val_mr=MR(y,Y,P=P,fonc_pmr=fonc_PMR)
+        if(y_prefere_yprim(fonc,y,yprim,lambda_etoile)):
+            P.append((y,yprim))
         else:
-            P.append((yp_etoile,xp_etoile)) 
+            P.append((yprim,y))
         i+=1    
-    print(i)  
-    return xp_etoile
+        print("\niteration ",i,val_mmr)
+    sol=[]
+    for j in range(len(Y)):
+        if(np.all(y==Y[j])):
+            sol=X[j]
+    return i,sol,fonc(lambda_etoile,y)
 
-def x_prefere_y(pb,fonc,a,b,lambda_etoile):
+def y_prefere_yprim(fonc,y,yprim,lambda_etoile):
     """
-    demander au decideur si il prefere a à b
+    demander au decideur si il prefere y à yprim
+    fonc : fonction agregation avec Y : evaluation de X
+    y(array) : une evaluation de solution
+    yprim(array) : une autre evaluation de solution
+    lambda_etole : poids exacte de fonction d'agregation
     """
     #print("a ",a)
     #print("b",b)
-    fw_a = fonc(lambda_etoile,a)
-    fw_b = fonc(lambda_etoile,b)
-    if(np.all(fw_a > fw_b)):
+    fw_y = fonc(lambda_etoile,y)
+    fw_yprim = fonc(lambda_etoile,yprim)
+    if(np.all(fw_y > fw_yprim)):
         return True
     return False
 
