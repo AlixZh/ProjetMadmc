@@ -62,9 +62,7 @@ def opt_pl_owa(pb,w):
     env = Env(empty=True)
     env.setParam("OutputFlag",0)
     env.start()
-    m = Model("OWA",env=env)     
-    w.sort()
-    #w=w[::-1]
+    m = Model("OWA",env=env)
     # declaration variables de decision
     r=[]
     x = []

@@ -2,7 +2,7 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-
+from gurobipy import *
 #----------------------------------------
 # fonction d agregation de donnees
 #----------------------------------------
@@ -274,28 +274,6 @@ def owa(pb,w,x,list_ind = True):
         res += ai[ind[p]]*w[p]
     return res 
 
-def owa_Y(pb,w,y,list_ind = True):
-    """
-    pb : donnees du probleme a considerer
-    w : liste des poids de ponderation pour la somme ponderee
-    x : la liste des indices des objets a prendre dans le sac ou la liste contenant des 1 et 0
-    list_ind si x est la liste des indices des objets
-    
-    renvoie le resultat de la fonction d agregation somme ponderee, 
-    et true s il est valide, false, s il y a une erreur
-    """
-    res = 0
-    if(len(w) != pb["p"]):
-        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
-        return res
-    elif(round(np.sum(w)) != 1):
-        print("sum(wi) != 1")
-        return res
-    ind = np.argsort(y) #trier les criteres dans l ordre croissant
-    for p in range(pb["p"]):
-        res += y[ind[p]]*w[p]
-    return res 
-
 def gen_capacite(pb,w=[]):
     """
     pb : donnees du problem
@@ -339,4 +317,214 @@ def int_choquet(pb,w,x):
         else : 
             res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
     return res
+def som_pond_Y(w,y):
+    """
+    w : liste des poids de ponderation pour la somme ponderee
+    y : une evaluation d'une solution realisable 
+    
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
+    """
+    res = 0
+    if(len(w) != len(y)):
+        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+        return res
+    elif(round(np.sum(w)) != 1):
+        print("sum(wi) != 1")
+        return res
+    for i in range(len(w)):
+        res += y[i]*w[i]
+    return res 
+def owa_Y(w,y):
+    """
+    w : liste des poids(ordre decrossant)
+    y : evaluation d'une solution
+    renvoie le resultat de la fonction d agregation somme ponderee, 
+    et true s il est valide, false, s il y a une erreur
+    """
+    res = 0
+    if(len(w) != len(y)):
+        print("la taille du nb de poids de ponderation n'est pas egale à la taille du nombre d objet")
+        return res
+    elif(round(np.sum(w)) != 1):
+        print("sum(wi) != 1")
+        return res
+    yy = np.sort(y) #trier les criteres dans l ordre croissant
+    # yy=yy[::-1]
+    for i in range(len(w)):
+        res += yy[i]*w[i]
+    return res
+#----------------------------------------
+# fonction pour calculer pmr,mr,mmr
+#----------------------------------------
+def PMR_SP(y,yprim,P=[]):
+    """
+    y(array) : une evaluation d'une solution realisable
+    yprim(array) : une autre evaluation
+    revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
+    """
+    env = Env(empty=True)
+    env.setParam("OutputFlag",0)
+    env.start()
+
+    if(len(y)!=len(yprim)):
+        print ("erreur len(y)!=len(yprim)")
+    nbvar=len(y) #nombre d objet possible
+    colonnes = range(nbvar)
+
+    #matrice des contraintes
+    a = [1]*nbvar
+    # Second membre
+    b = 1.0
+    #parametre de fonction objectif
+    c=(yprim-y)
+
+    m = Model("PMR_SP",env=env)     
+ # declaration variables de decision
+    lambda_ = []
+    for i in colonnes:
+        lambda_.append(m.addVar(vtype=GRB.CONTINUOUS,lb=0.0,ub=1.0, name="lambda%d" % (i+1)))
+
+    # maj du modele pour integrer les nouvelles variables
+    m.update()
+
+    obj = LinExpr();
+    for i in range(nbvar):
+        obj+=c[i]*lambda_[i]
+    #print("obj ",obj)
+    # definition de l'objectif
+    m.setObjective(obj,GRB.MAXIMIZE)
+    #print(m)
+    # Definition des contraintes
+    m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)
+    for yi,yprim_i in P:
+        m.addConstr(quicksum(lambda_[j]*(yi-yprim_i)[j] for j in colonnes) >= 0.0)
+
+    # Resolution
+    m.optimize()
+    # print("")                
+    # print('Solution optimale:')
+    res=np.array([0.0]*nbvar)
+    for j in colonnes:
+        res[j]=lambda_[j].X
+    # print("")
+    # print('Valeur de la fonction objectif :', m.objVal)
+    return res,m.objVal
+
+def PMR_OWA(y,yprim,P=[]):
+    """
+    y(array) : une evaluation d'une solution realisable
+    yprim(array) : une autre evaluation
+    revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
+    """
+    env = Env(empty=True)
+    env.setParam("OutputFlag",0)
+    env.start()
+
+    y_=y.copy()
+    yprim_=yprim.copy()
+    y_.sort()
+    yprim_.sort()
+    if(len(y_)!=len(yprim_)):
+        print ("erreur len(x)!=len(y)")
+    nbvar=len(y_) #nombre d objet possible
+    colonnes = range(nbvar)
+
+    #matrice des contraintes
+    a = [1]*nbvar
+    # Second membre
+    b = 1.0
+    #parametre de fonction objectif
+    c=(yprim_-y_)
+
+    m = Model("PMR_OWA",env=env)     
+ # declaration variables de decision
+    lambda_ = []
+    for i in colonnes:
+        lambda_.append(m.addVar(vtype=GRB.CONTINUOUS,lb=0.0,ub=1.0, name="lambda%d" % (i+1)))
+
+    # maj du modele pour integrer les nouvelles variables
+    m.update()
+
+    obj = LinExpr();
+    for i in range(nbvar):
+        obj+=c[i]*lambda_[i]
+    #print("obj ",obj)
+    # definition de l'objectif
+    m.setObjective(obj,GRB.MAXIMIZE)
+    #print(m)
+    # Definition des contraintes
+    m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)#somme lambda=1
+    for i in range(0,nbvar-1):
+        m.addConstr(lambda_[i]-lambda_[i+1] >= 0 )#lambda_i>lambda_i+1
+    for a1,a2 in P.copy():
+        x1=a1.copy()
+        y1=a2.copy()
+        x1.sort()
+        y1.sort()
+        m.addConstr(quicksum(lambda_[j]*(x1-y1)[j] for j in colonnes) >= 0.0)
+    # Resolution
+    m.optimize()
+    # print("")                
+    # print('Solution optimale:')
+    res=np.array([0.0]*nbvar)
+    for j in colonnes:
+        res[j]=lambda_[j].x
+    # print("")
+    # print('Valeur de la fonction objectif :', m.objVal)
+    return res,m.objVal
+
+def MR(y,Y,P=[],fonc_pmr=PMR_SP):
+    """
+    y(array) : une evaluation d'une solution realisable
+    Y(list(array)) : ensemble d'evaluations possibles
+    lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
+    lambda_max(float) : borne sup de lambda possible
+    fonc_pmr : programmation lineaire de pmr pour un type de fonction aggregation(PMR_SP:somme pondérée, PMR_OWA:OWA ou PMR_IC:l’intégrale de Choquet)
+    revoie tuple(list,float): y dans list Y telle qu'il maximise (pmr)(le pire des regrets associé à la recommandation de l'alternative y à la place
+de toute autre alternative dans Y ), et la valeur max
+    """
+
+    arg_res_mr=np.array([0.0]*len(y))
+    res_mr=float("-inf")
+    for yprim in Y:
+        if(np.all(y==yprim)):
+            continue
+        # if((x,y) in P):
+        #     continue
+        w,res_pmr=fonc_pmr(y,yprim,P)
+        if(res_pmr>=res_mr):
+            arg_res_mr=yprim
+            res_mr=res_pmr
+    return arg_res_mr,res_mr
+def MMR(Y,P=[],fonc_pmr=PMR_SP):
+    """
+    Y(list(array)) : ensemble d'evaluations possibles
+    lambda_min(float) : borne inf de lambda possible( lambda_ parametre d'aggregation)
+    lambda_max(float) : borne sup de lambda possible
+    revoie array,float : y dans Y qui donne Minimax Regret et minimax regret
+    """
+    arg_res_mmr=np.array([0.0]*len(Y[0]))
+    res_mmr=float("inf")
+    for y in Y:
+        arg_res_mr,res_mr=MR(y,Y,P,fonc_pmr)
+        if(res_mr<=res_mmr):
+            arg_res_mmr=y
+            res_mmr=res_mr
+    return arg_res_mmr,res_mmr
+def y_prefere_yprim(fonc,y,yprim,lambda_etoile):
+    """
+    demander au decideur si il prefere y à yprim
+    fonc : fonction agregation avec Y : evaluation de X
+    y(array) : une evaluation de solution
+    yprim(array) : une autre evaluation de solution
+    lambda_etole : poids exacte de fonction d'agregation
+    """
+    #print("a ",a)
+    #print("b",b)
+    fw_y = fonc(lambda_etoile,y)
+    fw_yprim = fonc(lambda_etoile,yprim)
+    if(np.all(fw_y > fw_yprim)):
+        return True
+    return False
 
