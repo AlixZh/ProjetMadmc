@@ -112,7 +112,7 @@ def gen_poids_precision(taille, precision):
         s = s - w[i]
     w[-1] = 1 - np.sum(w)
     return w
-
+"""
 def rbls(pb,eps,max_it,fonc):
     """
     pb : dict des donnees du probleme considere
@@ -145,3 +145,45 @@ def rbls(pb,eps,max_it,fonc):
     return sol,o_t,it
     
     #essaie
+"""
+    
+    
+ def rbls(pb,eps,max_it,w_etoile,fonc_ag = som_pond_Y, fonc_pmr = PMR_SP):
+    """
+    pb : dict des donnees du probleme considere
+    implementation du regret-based local search
+    renvoie la solution du sac a dos
+    """
+    sol = init_glouton(pb)
+    print("sol ",sol)
+    y_courant = y_sol(pb,sol)
+    print("ycourant : ",y_courant)
+    it = 0
+    theta = []
+    ameliore = True
+
+    while(ameliore and it < max_it) : 
+        sol_voisins = voisinage(pb, sol)
+        y_sol_voisins = [y_sol(pb,xx) for xx in sol_voisins] #sol des criteres
+        print("nb question : ",it)
+        while( MMR(y_sol_voisins,theta,fonc_pmr)[1]> eps):
+            print(MMR(y_sol_voisins,theta,fonc_pmr)[1])
+            (a,b) = demande(y_courant,y_sol_voisins,theta,w_etoile,fonc_ag)
+            theta.append((a,b))
+        if(MR(y_courant,y_sol_voisins,theta,fonc_pmr)[1] > eps):
+            y_courant,res = MMR(y_sol_voisins,theta,fonc_pmr)
+            print(y_sol_voisins,y_courant)
+            print("where : ",np.where(np.array(y_sol_voisins)== y_courant))
+            sol = list(np.array(sol_voisins)[np.where(np.array(y_sol_voisins) == y_courant)[0][0]])
+            print("nv sol : ",sol)
+            it += 1
+        else:
+            ameliore = False
+    return sol,it
+      
+    
+ def ri(pb,i,qi):
+    res = 0
+    for vi in range(pb["p"]):
+        res += qi[vi]*pb["v"][i][vi]
+    return res/pb["wi"][i]
