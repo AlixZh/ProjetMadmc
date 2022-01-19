@@ -3,7 +3,7 @@ import numpy as np
 import tools as ts
 
 
-def opt_pl(pb,fonc,w):
+def opt_pl_SP(pb,fonc,w):
     """
     pb : dict du pb considere
     fonc : fonction d agregation
@@ -44,16 +44,16 @@ def opt_pl(pb,fonc,w):
     m.optimize()
 
 
-    print("")                
-    print('Solution optimale:')
-    for j in colonnes:
-        print('x%d'%(j+1), '=', x[j].x)
-    print("")
-    print('Valeur de la fonction objectif :', m.objVal)
+    # print("")                
+    # print('Solution optimale:')
+    # for j in colonnes:
+    #     print('x%d'%(j+1), '=', x[j].x)
+    # print("")
+    # print('Valeur de la fonction objectif :', m.objVal)
+    return m.objVal
 
 
-
-def opt_pl_owa(pb,w):
+def opt_pl_OWA(pb,w):
     """
     pb : dict du pb considere
     w : liste des poids
@@ -107,10 +107,11 @@ def opt_pl_owa(pb,w):
     m.optimize()
 
 
-    print("")                
-    print('Solution optimale:')
-    for j in N:
-        print('x%d'%(j+1), '=', x[j].x)
-    print("")
-    print('Valeur de la fonction objectif :', m.objVal)    
+    # print("")                
+    # print('Solution optimale:')
+    # for j in N:
+    #     print('x%d'%(j+1), '=', x[j].x)
+    # print("")
+    # print('Valeur de la fonction objectif :', m.objVal)    
+    return m.objVal
 

@@ -279,9 +279,9 @@ def gen_capacite(pb,w=[]):
     pb : donnees du problem
     generer les poids de choquet
     """
-    nvw = true #il faut generer un w
+    nvw = True #il faut generer un w
     if(w != []):
-        nvw = false #il ne faut pas generer de w
+        nvw = False #il ne faut pas generer de w
     if(nvw):
         w = [0]
     possibilite = [[set()]]

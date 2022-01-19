@@ -38,6 +38,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     fonc : fonction d'aggregation 
     lambda_etoile : vecteur poids pour decideur
     fonc_PMR: programmation lineaire de pmr pour un type de fonction aggregation(PMR_SP:somme pondérée, PMR_OWA:OWA ou PMR_IC:l’intégrale de Choquet)
+    revoie (nombre de questions posées,solution x,optimale de fonction d'agregation obtenu,liste de mmr en fonction de nombre question posée)
     """
     X,Y=PLS(pb)
     P=[]
@@ -49,7 +50,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     else:
         P.append((yprim,y))
     i=0#nb de question posé
-    print("\niteration ",i,val_mmr)
+    #print("\niteration ",i,val_mmr)
     while (val_mmr>0. and i<len(Y)):
         y,val_mmr=ts.MMR(Y,P=P,fonc_pmr=fonc_PMR)
         yprim,val_mr=ts.MR(y,Y,P=P,fonc_pmr=fonc_PMR)
@@ -59,7 +60,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
             P.append((yprim,y))
         i+=1
         list_mmr_en_iteration.append(val_mmr)    
-        print("\niteration ",i,val_mmr)
+        #print("\niteration ",i,val_mmr)
     sol=[]
     for j in range(len(Y)):
         if(np.all(y==Y[j])):
