@@ -18,7 +18,7 @@ def erreur(pb,x,x_pl,val_ag,val_pl):
     return np.sum(np.abs(x-x_pl)), (val_ag-val_pl)/val_pl
     
     
-    def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_objet = [10,20,50,100]):
+def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_objet = [10,20,50,100]):
     """
     """
     
