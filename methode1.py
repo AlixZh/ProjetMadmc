@@ -49,19 +49,21 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     y,val_mmr=ts.MMR(Y,fonc_pmr=fonc_PMR)
     yprim,val_mr=ts.MR(y,Y,fonc_pmr=fonc_PMR)
     list_mmr_en_iteration=[val_mmr]
-    if(ts.y_prefere_yprim(fonc,y,yprim,lambda_etoile)):
-        P.append((y,yprim))
-    else:
-        P.append((yprim,y))
     i=0#nb de question posé
     #print("\niteration ",i,val_mmr)
     while (val_mmr>0. and i<len(Y)):
-        y,val_mmr=ts.MMR(Y,P=P,fonc_pmr=fonc_PMR)
-        yprim,val_mr=ts.MR(y,Y,P=P,fonc_pmr=fonc_PMR)
         if(ts.y_prefere_yprim(fonc,y,yprim,lambda_etoile)):
             P.append((y,yprim))
+            ind = np.where(np.array(Y) == yprim)[0][0]
+            del Y[ind]
+            del X[ind]
         else:
             P.append((yprim,y))
+            ind = np.where(np.array(Y) == y)[0][0]
+            del Y[ind]
+            del X[ind]
+        y,val_mmr=ts.MMR(Y,P=P,fonc_pmr=fonc_PMR)
+        yprim,val_mr=ts.MR(y,Y,P=P,fonc_pmr=fonc_PMR)
         i+=1
         list_mmr_en_iteration.append(val_mmr)    
         #print("\niteration ",i,val_mmr)
@@ -70,6 +72,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
         if(np.all(y==Y[j])):
             sol=X[j]
     return i,sol,fonc(lambda_etoile,y),list_mmr_en_iteration
+
 
 
 
