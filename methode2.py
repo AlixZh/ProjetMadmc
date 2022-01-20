@@ -1,83 +1,75 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import tools as ts
+
+def PLS_elicitation(pb,x_init,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
+    #print("x_init",x_init)
+    racine=qdt.Node(x_init,f(pb,x_init),parent=None)
+    racine.sons=[]
+    Xe_approx=qdt.QuadTree(pb["p"],racine)#une approximation de l ensemble des solutions efficaces Xe
+    Xe_approx.clear_tree()
+    Xe_approx.racine=racine
+    
+    Pa=[]#population auxiliaire
+    i=0
+    #generation de tous les voisins pp de chaque solution p dans P
+    v=V(pb,x_init)
+    for pp in v:
+        #si pp n est pas domine par p
+        if(not all(f(pb,pp)<=f(pb,x_init))):
+            #a modifier
+            if(Xe_approx.insert_tree(qdt.Node(pp,f(pb,pp)))):
+                Pa.append(pp)
+    #print("P",P)
+    X=[set(Xe_approx.racine.solution)]
+    Y=[f(pb,Xe_approx.racine.solution)]
+    for node in Xe_approx.nodes:
+        #if(not check_set_in_list(node.solution,X)):
+            #X.append(node.solution)
+            #Y.append(node.v)
+        X.append(node.solution)
+        Y.append(node.v)
+    return X,Y
 
 
 
+def demande(voisinage_Y,preferences,w_etoile,fonc = ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
+    y_etoile,res = ts.MMR(voisinage_Y,preferences,fonc_PMR)
+    ymr,res = ts.MR(y_etoile,voisinage_Y,preferences,fonc_PMR)
+    if(ts.y_prefere_yprim(fonc,y_etoile,ymr,w_etoile)):
+        return y_etoile,ymr
+    return ymr,y_etoile
 
-
-"""
-def rbls(pb,eps,max_it,fonc):
+def rbls(pb,eps,max_it,w_etoile,f = ts.y_sol,fonc_ag = ts.som_pond_Y, fonc_PMR = ts.PMR_SP):
     """
     pb : dict des donnees du probleme considere
     implementation du regret-based local search
     renvoie la solution du sac a dos
     """
-    sol = init_glouton(pb)
+    sol = ts.init_glouton(pb)
+    y_courant = f(pb,sol)
     it = 0
-    theta = set()
-    o_t = set()
-    o_t.add(tuple(gen_poids(pb["p"])))
-    ameliore = True
-    w_etoile = tuple(gen_poids(pb["p"])) # liste de poids cache du decideur
-    
-    while(ameliore and it < max_it) : 
-        sol_voisins = voisinage(pb, sol)
-        print("mmr ",mmr(pb,fonc,sol_voisins, o_t))
-        while( mmr(pb,fonc,sol_voisins, o_t)[1] > eps):
-            print("entrer ")
-            (a,b) = demande(pb,fonc,sol,sol_voisins,w_etoile)
-            theta.add((a,b))
-            o_t = omega_theta(pb,fonc,theta) #achanger
-            print("coc")
-        if(mr(pb,fonc,sol,sol_voisins,o_t)[0] > eps):
-            print("cocc")
-            sol,_,_,_ = mmr(pb,fonc,sol_voisins,o_t)
-            it += 1
-        else:
-            ameliore = False
-    return sol,o_t,it
-    
-    #essaie
-"""
-    
-    
- def rbls(pb,eps,max_it,w_etoile,fonc_ag = som_pond_Y, fonc_pmr = PMR_SP):
-    """
-    pb : dict des donnees du probleme considere
-    implementation du regret-based local search
-    renvoie la solution du sac a dos
-    """
-    sol = init_glouton(pb)
-    print("sol ",sol)
-    y_courant = y_sol(pb,sol)
-    print("ycourant : ",y_courant)
-    it = 0
+    nb_question = 0
     theta = []
     ameliore = True
-
+    val_mmr = []
     while(ameliore and it < max_it) : 
-        sol_voisins = voisinage(pb, sol)
-        y_sol_voisins = [y_sol(pb,xx) for xx in sol_voisins] #sol des criteres
-        print("nb question : ",it)
-        while( MMR(y_sol_voisins,theta,fonc_pmr)[1]> eps):
-            print(MMR(y_sol_voisins,theta,fonc_pmr)[1])
-            (a,b) = demande(y_courant,y_sol_voisins,theta,w_etoile,fonc_ag)
-            theta.append((a,b))
-        if(MR(y_courant,y_sol_voisins,theta,fonc_pmr)[1] > eps):
-            y_courant,res = MMR(y_sol_voisins,theta,fonc_pmr)
-            print(y_sol_voisins,y_courant)
-            print("where : ",np.where(np.array(y_sol_voisins)== y_courant))
+        sol_voisins, y_sol_voisins = PLS_elicitation(pb,sol)
+        while( ts.MMR(y_sol_voisins,theta,fonc_PMR)[1]> eps):
+            (a,b) = demande(y_sol_voisins,theta,w_etoile,fonc_ag)
+            if(not check_set_in_list((a,b),theta)):
+                theta.append((a,b))
+            ind = np.where(np.array(y_sol_voisins) == b)[0][0]
+            del y_sol_voisins[ind]
+            del sol_voisins[ind]
+            
+            val_mmr.append(ts.MMR(y_sol_voisins,theta,fonc_PMR)[1])
+            nb_question += 1
+        if(ts.MR(y_courant,y_sol_voisins,theta,fonc_PMR)[1] > eps):
+            y_courant,res = ts.MMR(y_sol_voisins,theta,fonc_PMR)
             sol = list(np.array(sol_voisins)[np.where(np.array(y_sol_voisins) == y_courant)[0][0]])
-            print("nv sol : ",sol)
             it += 1
         else:
             ameliore = False
-    return sol,it
-      
-    
- def ri(pb,i,qi):
-    res = 0
-    for vi in range(pb["p"]):
-        res += qi[vi]*pb["v"][i][vi]
-    return res/pb["wi"][i]
+    return nb_question,sol, fonc_ag(w_etoile,y_courant),val_mmr,it
