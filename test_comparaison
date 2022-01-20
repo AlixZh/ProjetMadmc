@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import quadtree as qdt
 import tools as ts
 import PL
-from methode1 import *
-from methode2 import *
+import methode1 
+import methode2 
+from test_methode import *
 
 
 def erreur(pb,x,x_pl,val_ag,val_pl):
