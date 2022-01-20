@@ -59,8 +59,7 @@ def rbls(pb,eps,max_it,w_etoile,f = ts.y_sol,fonc_ag = ts.som_pond_Y, fonc_PMR =
         sol_voisins, y_sol_voisins = PLS_elicitation(pb,sol)
         while( ts.MMR(y_sol_voisins,theta,fonc_PMR)[1]> eps):
             (a,b) = demande(y_sol_voisins,theta,w_etoile,fonc_ag)
-            if(not check_set_in_list((a,b),theta)):
-                theta.append((a,b))
+            theta.append((a,b))
             ind = np.where(np.array(y_sol_voisins) == b)[0][0]
             del y_sol_voisins[ind]
             del sol_voisins[ind]
