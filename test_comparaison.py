@@ -74,3 +74,91 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
                     l_cpt_erreur_owa[p,n,_type,i] ,l_erreur_relative_owa[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-2])
                     
     return l_temps_sp,l_nb_Q_sp, l_erreur_relative_sp,l_cpt_erreur_sp,l_temps_owa ,l_nb_Q_owa,l_erreur_relative_owa ,l_cpt_erreur_owa 
+
+
+#plot
+
+
+
+def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
+    """
+    
+    """
+    #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
+    #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
+
+    ag = [" SP"," OWA"]
+    mline = ["-.","dotted","--"]
+    comp = [" Nb_Questions ", " Erreur R "," Erreur Cpt "]
+    m = ["exacte","methode1","methode2"]
+    if(critere):
+        for n in range(len(objets)):
+            for ncomp in range(1,len(comp)+1):
+                fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+                fig.set_size_inches(25,10)
+                fig.suptitle(comp[ncomp-1]+" n = "+str(objets[n]))
+                for v in range(2): #pSPT ou OWA
+                    for methode in range(2):
+                        axs[v].plot(criteres,np.sum(L[v][ncomp][:,n,methode,:],1),label=m[methode+1]+ag[v],linestyle=mline[methode])
+                    axs[v].set_xlabel("criteres")
+                    axs[v].set_ylabel(comp[ncomp-1])
+                    axs[v].legend()
+                plt.savefig(comp[ncomp-1]+" n = "+str(objets[n]))
+                plt.show()
+                plt.close(fig)
+
+            #Comp Temps
+            fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+            fig.set_size_inches(25,10)
+            fig.suptitle("Temps "+" n = "+str(objets[n]))
+            for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
+                for methode in range(3):
+                    print("ICI   ",np.sum(L[v][0][:,n,methode,:],1))
+                    axs[v].plot(criteres,np.sum(L[v][0][:,n,methode,:],1),label=m[methode]+ag[v],linestyle=mline[methode])
+                    axs[v].set_xlabel("criteres")
+                    axs[v].set_ylabel("Temps (s)")
+                    axs[v].legend()
+            plt.savefig("Temps_ "+"n = "+str(objets[n]))
+            plt.show()
+            plt.close(fig)
+    else:
+        for p in range(len(criteres)):
+            for ncomp in range(1,len(comp)+1):
+                fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+                fig.set_size_inches(25,10)
+                fig.suptitle(comp[ncomp-1]+" p = "+str(criteres[p]))
+                for v in range(2): #pSPT ou OWA
+                    for methode in range(2):
+                        axs[v].plot(objets,np.sum(L[v][ncomp][p,:,methode,:],1),label=m[methode+1]+ag[v],linestyle=mline[methode])
+                    axs[v].set_xlabel("Nb objets")
+                    axs[v].set_ylabel(comp[ncomp-1])
+                    axs[v].legend()
+                plt.savefig(comp[ncomp-1]+" p = "+str(criteres[p]))
+                plt.show()
+                plt.close(fig)
+
+            #Comp Temps
+            fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+            fig.set_size_inches(25,10)
+            fig.suptitle("Temps "+" p = "+str(criteres[p]))
+            for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
+                for methode in range(3):
+                    axs[v].plot(objets,np.sum(L[v][0][p,:,methode,:],1),label=m[methode]+ag[v],linestyle=mline[methode])
+                    axs[v].set_xlabel("Nb objets")
+                    axs[v].set_ylabel("Temps (s)")
+                    axs[v].legend()
+            plt.savefig("Temps_ "+"p = "+str(criteres[p]))
+            plt.show()
+            plt.close(fig)
+            
+            
+  def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150]):
+    #critere x:
+    for nbobjet in objets:
+        a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
+        plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True)
+    #objets x
+    
+    for nbc in criteres:
+        a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,[nbc],objets)
+        plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False)
