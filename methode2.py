@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tools as ts
+import quadtree as qdt
 
 def PLS_elicitation(pb,x_init,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
     #print("x_init",x_init)
