@@ -303,7 +303,7 @@ def int_choquet(pb,w,x):
     pb : donnees du probleme a considerer
     w : liste des poids de ponderation pour la somme ponderee
     x : la liste des indices des objets a prendre dans le sac 
-    renvoie le resultat de la fonction d agregation somme ponderee, 
+    renvoie le resultat de la fonction d agregation int_choquet, 
     et true s il est valide, false, s il y a une erreur
     """
     res = 0
@@ -369,7 +369,7 @@ def PMR_SP(y,yprim,P=[]):
 
     if(len(y)!=len(yprim)):
         print ("erreur len(y)!=len(yprim)")
-    nbvar=len(y) #nombre d objet possible
+    nbvar=len(y)
     colonnes = range(nbvar)
 
     #matrice des contraintes
@@ -427,7 +427,7 @@ def PMR_OWA(y,yprim,P=[]):
     yprim_.sort()
     if(len(y_)!=len(yprim_)):
         print ("erreur len(x)!=len(y)")
-    nbvar=len(y_) #nombre d objet possible
+    nbvar=len(y_)
     colonnes = range(nbvar)
 
     #matrice des contraintes

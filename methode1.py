@@ -5,8 +5,12 @@ import quadtree as qdt
 def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
     x_init=p_init(pb)#population initiale
     #print("x_init",x_init)
-    racine=qdt.Node(x_init,f(pb,x_init))
+    racine=qdt.Node(x_init,f(pb,x_init),parent=None)
+    racine.sons=[]
     Xe_approx=qdt.QuadTree(pb["p"],racine)#une approximation de l ensemble des solutions efficaces Xe
+    
+    Xe_approx.clear_tree()
+    Xe_approx.racine=racine
     P=[x_init]
     Pa=[]#population auxiliaire
     i=0
@@ -23,12 +27,11 @@ def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
         P=Pa.copy()
         Pa=[]
         #print("P",P)
-    X=[set(x_init)]
-    Y=[f(pb,x_init)]
+    X=[set(Xe_approx.racine.solution)]
+    Y=[f(pb,Xe_approx.racine.solution)]
     for node in Xe_approx.nodes:
         X.append(node.solution)
         Y.append(node.v)
-
     return X,Y
 
 
@@ -41,6 +44,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     revoie (nombre de questions posées,solution x,optimale de fonction d'agregation obtenu,liste de mmr en fonction de nombre question posée)
     """
     X,Y=PLS(pb)
+    print("PLS",X)
     P=[]
     y,val_mmr=ts.MMR(Y,fonc_pmr=fonc_PMR)
     yprim,val_mr=ts.MR(y,Y,fonc_pmr=fonc_PMR)

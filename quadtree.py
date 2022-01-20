@@ -39,23 +39,59 @@ class QuadTree(object):
             if(son.sons!=[]):
                 list_nodes=list_nodes|self.get_branch(son,list_nodes)
         return list_nodes
-    def check_branch(self,racine_branch,list_reinsert=set()): 
-        """
-        racine_branch: type Node , racine de subtree  
+    # def get_branch(self,racine_branch,list_nodes=[]): 
+    #     """
+    #     racine_branch: type Node , racine de subtree  
 
-        revoie subtree(list des nodes) d ou racine_branch est le racine
+    #     revoie subtree(list des nodes) d ou racine_branch est le racine
 
-        """
+    #     """
+    #     for son in racine_branch.sons:
+    #         list_nodes.append(son)
+    #         #print("racine_branch",racine_branch.v,"son",son.v,"son_son",len(son.sons))
+    #         if(len(son.sons)!=[]):
+    #             list_nodes=self.get_branch(son,list_nodes)
+    #     #print("racine branch",racine_branch.v,"sons",len(racine_branch.sons),"list nodes ",len(list_nodes))
+    #     return list_nodes
+    # def check_branch(self,racine_branch,list_reinsert=set()): 
+    #     """
+    #     racine_branch: type Node , racine de subtree  
 
-        check_list=set(racine_branch.sons)
-        for son in racine_branch.sons:
-            if(son.sons!=[]):
-                list_nodes=list_nodes|self.get_branch(son,list_nodes)
-        return list_nodes
+    #     revoie subtree(list des nodes) d ou racine_branch est le racine
+
+    #     """
+
+    #     check_list=set(racine_branch.sons)
+    #     for son in racine_branch.sons:
+    #         if(son.sons!=[]):
+    #             list_nodes=list_nodes|self.get_branch(son,list_nodes)
+    #     return list_nodes
     def clear_tree(self):
         self.racine=None
         self.nodes=[]
-
+    def check_dominance(self,node,k,racine_local):
+        if(np.all(k>=racine_local.k)):
+            if(np.all(node.v<=racine_local.v)):
+                return True
+            else:
+                for son in racine_local.sons:
+                    k1=np.array([0]*self.p)
+                    k1[np.where(node.v<=racine_local.v)]=1
+                    if(self.check_dominance(node,k1,son)):
+                        return True
+        return False
+    def check_dominated(self,node,k,racine_local):
+        if(np.all(racine_local.k>=k)):
+            if(np.all(racine_local.v<=node.v)):
+                return True,racine_local
+            else:
+                for son in racine_local.sons:
+                    k1=np.array([0]*self.p)
+                    k1[np.where(node.v<=racine_local.v)]=1
+                    condition,value=self.check_dominated(node,k1,son)
+                    if(condition):
+                        return True,value
+        return False,None
     def insert_tree(self,node,racine_local=None):
         """
         verifier et ajouter un nouveau node non dominee dans le quadtree
@@ -72,33 +108,57 @@ class QuadTree(object):
         node.k=np.array([0]*self.p)
         node.k[np.where(node.v<=racine_local.v)]=1
         #a reflechir pour le cas  node.k==1
-        if(np.all(node.k==1) or np.all(node.k==0)):
+        if(np.all(node.k==1)):
             return False
+        if(np.all(node.k==0)):
+            self.racine=node
+            for node1 in self.nodes:
+                self.nodes.remove(node1)
+                node1.parent=None
+                node1.sons=[]
+                node1.k=None
+                self.insert_tree(node1)
+            return True
         s=racine_local.sons.copy()
-        for son in s:
-            #son domine node , pas besoin d inserer node
-            if(np.all(node.k>=son.k) and np.all(node.v<=son.v)):
+        #chercher sur la branch ou la racine.k>=node.k(ou c'est possible avoir dominance)
+        for son in racine_local.sons:
+            if(self.check_dominance(node,node.k,son)):
                 return False
-        for son in s:
+
+        #chercher si les noeuds sont dominee par node
+        list_node_reinserer=[]
+        for son in racine_local.sons:
+            isdominee,subtree=self.check_dominated(node,node.k,son)
             #son est domine par node, supprimer son, reinserer subtree de son 
-            if(np.all(son.k>=node.k) and np.all(son.v<=node.v)):
-                self.nodes.remove(son)
-                racine_local.sons.remove(son)
-                for s_son in self.get_branch(son):
+            if(isdominee):
+                #print("subtree",subtree.v,"racine_local",racine_local,"subtree son",len(subtree.sons))
+                self.nodes.remove(subtree)
+                subtree.parent.sons.remove(subtree)
+                li=self.get_branch(subtree)
+                #print("subtree",subtree.v,"branch",len(li))
+                for s_son in li:
                     s_son.parent=None
-                    #s_son.sons=[]
+                    s_son.sons=[]
                     self.nodes.remove(s_son)
-                    self.insert_tree(s_son,self.racine)
+                    list_node_reinserer.append(s_son)
+                    #print("racine_local",racine_local.v,"subtree",subtree.v,"branch",len(li),"list reinserer ",len(list_node_reinserer),list_node_reinserer[0].v)
         
         for son in racine_local.sons:
             #meme successorship , vefier s il y a dominance
             if(np.all(son.k==node.k)):
-                #s il n y a pas dominance
-                if(not all(node.v<=son.v)):
+                #si node est dominee
+                if(all(node.v<=son.v)):
+                    for i in range(len(list_node_reinserer)):
+                        n=list_node_reinserer[i]
+                        self.insert_tree(n,self.racine)
                     #print("-----------",son.k,node.k)
-                    return self.insert_tree(node,son)
+                    return False
                 else:
-                    return True
+                    if(self.insert_tree(node,son)):
+                        for i in range(len(list_node_reinserer)):
+                            n=list_node_reinserer[i]
+                            self.insert_tree(n,self.racine)
+                        return True
 
         
         #inserer node
@@ -111,8 +171,11 @@ class QuadTree(object):
                 node.parent.sons.remove(node)
                 node.parent=racine_local
                 racine_local.sons.append(node)
-        return True
+        for i in range(len(list_node_reinserer)):
+            n=list_node_reinserer[i]
+            self.insert_tree(n,self.racine)
 
+        return True
 '''
 #test l'exemple de cours de en minimisation 
 a=Node([10,10,10])
@@ -147,7 +210,5 @@ tree.clear_tree()
 print(tree.nodes)
 
 '''
-
-
 
 
