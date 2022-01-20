@@ -1,3 +1,18 @@
+
+import numpy as np
+from gurobipy import *
+from itertools import chain, combinations
+import time
+import matplotlib.pyplot as plt
+
+import quadtree as qdt
+import tools as ts
+import PL
+import methode1 
+import methode2 
+
+
+
 class execution_methode1:
     """docstring for test_methode1"""
     def __init__(self,donnees = [],avec_pb = False):
@@ -44,14 +59,14 @@ class execution_methode2:
         
     def une_experience_sp(self):
         start=time.time() 
-        nb_question,sol,opt_sp,val_mmr,it = rbls(self.pb,self.eps,self.max_it,self.poids_SP,f = ts.y_sol,fonc_ag=ts.som_pond_Y,fonc_PMR=ts.PMR_SP)
+        nb_question,sol,opt_sp,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_SP,f = ts.y_sol,fonc_ag=ts.som_pond_Y,fonc_PMR=ts.PMR_SP)
         end=time.time()
         print(val_mmr)
         return sol,end-start,nb_question,opt_sp
     
     def une_experience_owa(self):
         start=time.time()
-        nb_question,sol,opt_owa,val_mmr,it = rbls(self.pb,self.eps,self.max_it,self.poids_OWA,f=ts.y_sol,fonc_ag=ts.owa_Y,fonc_PMR=ts.PMR_OWA)
+        nb_question,sol,opt_owa,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_OWA,f=ts.y_sol,fonc_ag=ts.owa_Y,fonc_PMR=ts.PMR_OWA)
         end=time.time()
         print(val_mmr)
         return sol,end-start,nb_question,opt_owa
