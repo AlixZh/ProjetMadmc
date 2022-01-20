@@ -32,7 +32,7 @@ class execution_methode1:
         end=time.time()
         #sol_pl,opt_pl=PL.opt_pl_SP(self.pb,ts.som_pond,self.poids_SP)
         #return sol,sol_pl,end-start,nb_question,opt_pl-opt_sp,list_mmr_en_iteration
-        return sol,end-start,nb_question,opt_sp
+        return sol,end-start,nb_question,opt_sp,list_mmr_en_iteration
     
     def une_experience_owa(self):
         start=time.time()
@@ -40,7 +40,7 @@ class execution_methode1:
         end=time.time()
         #sol_pl,opt_pl=PL.opt_pl_OWA(self.pb,self.poids_OWA)
         #return sol,sol_pl,end-start,nb_question,opt_pl-opt_owa,list_mmr_en_iteration
-        return sol,end-start,nb_question,opt_owa
+        return sol,end-start,nb_question,opt_owa,list_mmr_en_iteration
     
 class execution_methode2:
     """docstring for test_methode1"""
@@ -62,14 +62,14 @@ class execution_methode2:
         nb_question,sol,opt_sp,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_SP,f = ts.y_sol,fonc_ag=ts.som_pond_Y,fonc_PMR=ts.PMR_SP)
         end=time.time()
         print(val_mmr)
-        return sol,end-start,nb_question,opt_sp
+        return sol,end-start,nb_question,opt_sp,val_mmr
     
     def une_experience_owa(self):
         start=time.time()
         nb_question,sol,opt_owa,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_OWA,f=ts.y_sol,fonc_ag=ts.owa_Y,fonc_PMR=ts.PMR_OWA)
         end=time.time()
         print(val_mmr)
-        return sol,end-start,nb_question,opt_owa
+        return sol,end-start,nb_question,opt_owa,val_mmr
     
 class execution_exacte:
     """docstring for test_methode1"""
@@ -107,7 +107,7 @@ def main():
     test_m=execution_methode1([mypb,w_etoile],True)
     print("---------------- test methode1 somme pondérée ------------------ ")
     print(" w* pour somme pondérée" ,test_m.poids_SP)
-    x,temps,nb_question,y_ag=test_m.une_experience_sp()
+    x,temps,nb_question,y_ag,mmr=test_m.une_experience_sp()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
@@ -142,14 +142,14 @@ def main():
 
     print("---------------- test methode2 somme pondérée ------------------ ")
     print(" w* pour somme pondérée" ,test_m.poids_SP)
-    x,temps,nb_question,y_ag=test_m.une_experience_sp()
+    x,temps,nb_question,y_ag,mmr = test_m.une_experience_sp()
     print("solution methode2 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
     print("y_ag: ", y_ag)
     print("\n---------------- test methode2 owa --------------------------- ")
     print(" w* pour owa" ,test_m.poids_OWA)
-    x,temps,nb_question,y_ag=test_m.une_experience_owa()
+    x,temps,nb_question,y_ag,mmr = test_m.une_experience_owa()
     print("solution methode2 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
