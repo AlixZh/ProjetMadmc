@@ -14,7 +14,10 @@ class Node(object):
         self.sons=[]
         self.parent = parent
         self.k=np.array(k)
-
+    def clear_node(self):
+        self.sons=[]
+        self.parent =None
+        self.k=None       
 class QuadTree(object):
     """
     presentation des solutions non dominee dans le quadtree(maximisation)
@@ -26,7 +29,6 @@ class QuadTree(object):
         self.racine = racine
         self.nodes  = nodes
         self.p      = p
-
     def get_branch(self,racine_branch,list_nodes=set()): 
         """
         racine_branch: type Node , racine de subtree  
@@ -69,6 +71,8 @@ class QuadTree(object):
     def clear_tree(self):
         self.racine=None
         self.nodes=[]
+        for node in self.nodes:
+            node.clear_node()
     def check_dominance(self,node,k,racine_local):
         if(np.all(k>=racine_local.k)):
             if(np.all(node.v<=racine_local.v)):
@@ -81,6 +85,9 @@ class QuadTree(object):
                         return True
         return False
     def check_dominated(self,node,k,racine_local):
+        if(node not in self.nodes):
+
+            return False,None
         if(np.all(racine_local.k>=k)):
             if(np.all(racine_local.v<=node.v)):
                 return True,racine_local
@@ -131,14 +138,20 @@ class QuadTree(object):
             isdominee,subtree=self.check_dominated(node,node.k,son)
             #son est domine par node, supprimer son, reinserer subtree de son 
             if(isdominee):
-                #print("subtree",subtree.v,"racine_local",racine_local,"subtree son",len(subtree.sons))
+                #if(subtree not in self.nodes):
+                    #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree parent",subtree.parent,"len sons",len(subtree.sons))
+                    #if(subtree.parent!=None):
+                        #print("parent",subtree.parent.v)
                 self.nodes.remove(subtree)
                 subtree.parent.sons.remove(subtree)
+                subtree.clear_node()
                 li=self.get_branch(subtree)
                 #print("subtree",subtree.v,"branch",len(li))
                 for s_son in li:
                     s_son.parent=None
                     s_son.sons=[]
+                    #if(s_son not in self.nodes):
+                        #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree s_son",s_son.v)
                     self.nodes.remove(s_son)
                     list_node_reinserer.append(s_son)
                     #print("racine_local",racine_local.v,"subtree",subtree.v,"branch",len(li),"list reinserer ",len(list_node_reinserer),list_node_reinserer[0].v)
