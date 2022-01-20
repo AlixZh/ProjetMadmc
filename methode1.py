@@ -44,7 +44,7 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     revoie (nombre de questions posées,solution x,optimale de fonction d'agregation obtenu,liste de mmr en fonction de nombre question posée)
     """
     X,Y=PLS(pb)
-    print("PLS",X)
+    #print("PLS",X)
     P=[]
     y,val_mmr=ts.MMR(Y,fonc_pmr=fonc_PMR)
     yprim,val_mr=ts.MR(y,Y,fonc_pmr=fonc_PMR)
