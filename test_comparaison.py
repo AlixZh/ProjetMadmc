@@ -80,7 +80,7 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
 
 
 
-def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
+def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path= "fig"):
     """
     
     """
@@ -103,7 +103,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
-                plt.savefig(comp[ncomp-1]+" n = "+str(objets[n]))
+                plt.savefig(path+comp[ncomp-1]+" n = "+str(objets[n]))
                 plt.show()
                 plt.close(fig)
 
@@ -118,7 +118,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
-            plt.savefig("Temps_ "+"n = "+str(objets[n]))
+            plt.savefig(path+"Temps_ "+"n = "+str(objets[n]))
             plt.show()
             plt.close(fig)
     else:
@@ -133,7 +133,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
-                plt.savefig(comp[ncomp-1]+" p = "+str(criteres[p]))
+                plt.savefig(path+comp[ncomp-1]+" p = "+str(criteres[p]))
                 plt.show()
                 plt.close(fig)
 
@@ -147,18 +147,18 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True):
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
-            plt.savefig("Temps_ "+"p = "+str(criteres[p]))
+            plt.savefig(path+"Temps_ "+"p = "+str(criteres[p]))
             plt.show()
             plt.close(fig)
             
             
-  def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150]):
+  def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig"):
     #critere x:
     for nbobjet in objets:
         a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
-        plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True)
+        plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,path)
     #objets x
     
     for nbc in criteres:
         a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,[nbc],objets)
-        plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False)
+        plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False,path)
