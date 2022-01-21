@@ -114,7 +114,7 @@ def main():
     print("y_ag: ", y_ag)
     print("\n---------------- test methode1 owa --------------------------- ")
     print(" w* pour owa" ,test_m.poids_OWA)
-    x,temps,nb_question,y_ag=test_m.une_experience_owa()
+    x,temps,nb_question,y_ag,mmr=test_m.une_experience_owa()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
