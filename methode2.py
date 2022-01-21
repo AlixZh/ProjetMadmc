@@ -5,6 +5,16 @@ import tools as ts
 import quadtree as qdt
 
 def PLS_elicitation(pb,x_init,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
+    """
+    pb : probleme
+    x_init : solution courant 
+    p_init : fonction d 'initialisation
+    V : fonction de voisinage
+    f : fonction d evaluation 
+    renvoie les solutions pareto sous forme d 
+    une liste X : liste de liste des indices d objet, 
+    Y : liste de liste de l evaluation des listes de X
+    """
     #print("x_init",x_init)
     racine=qdt.Node(x_init,f(pb,x_init),parent=None)
     racine.sons=[]
@@ -45,6 +55,11 @@ def demande(voisinage_Y,preferences,w_etoile,fonc = ts.som_pond_Y,fonc_PMR=ts.PM
 def rbls(pb,eps,max_it,w_etoile,f = ts.y_sol,fonc_ag = ts.som_pond_Y, fonc_PMR = ts.PMR_SP):
     """
     pb : dict des donnees du probleme considere
+    max_it : max iteration
+    eps: espilon, seuil
+    f : fonction d evaluation
+    fonc_ag : fonction d agregation
+    fonc_PMR : fonction pour calcueler la valeur PMR
     implementation du regret-based local search
     renvoie la solution du sac a dos
     """
