@@ -322,7 +322,7 @@ def owa_Y(w,y):
         print("sum(wi) != 1")
         return res
     yy = np.sort(y) #trier les criteres dans l ordre croissant
-    # yy=yy[::-1]
+
     for i in range(len(w)):
         res += yy[i]*w[i]
     return res
@@ -333,6 +333,7 @@ def PMR_SP(y,yprim,P=[]):
     """
     y(array) : une evaluation d'une solution realisable
     yprim(array) : une autre evaluation
+
     revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
     """
     env = Env(empty=True)
@@ -363,10 +364,8 @@ def PMR_SP(y,yprim,P=[]):
     obj = LinExpr();
     for i in range(nbvar):
         obj+=c[i]*lambda_[i]
-    #print("obj ",obj)
     # definition de l'objectif
     m.setObjective(obj,GRB.MAXIMIZE)
-    #print(m)
     # Definition des contraintes
     m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)
     for yi,yprim_i in P:
@@ -375,16 +374,11 @@ def PMR_SP(y,yprim,P=[]):
     # Resolution
     m.optimize()
 
-    # print("")                
-    # print('Solution optimale:')
     if(m.status==3):
         return None,float("-inf")
     res=np.array([0.0]*nbvar)
     for j in colonnes:
         res[j]=lambda_[j].x
-    # print("")
-    # print('Valeur de la fonction objectif :', m.objVal)
-
     return res,m.objVal
 
 def PMR_OWA(y,yprim,P=[]):
@@ -444,8 +438,6 @@ def PMR_OWA(y,yprim,P=[]):
     res=np.array([0.0]*nbvar)
     for j in colonnes:
         res[j]=lambda_[j].x
-    # print("")
-    # print('Valeur de la fonction objectif :', m.objVal)
     return res,m.objVal
 
 def MR(y,Y,P=[],fonc_pmr=PMR_SP):
