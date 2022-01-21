@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from gurobipy import *
+
 #----------------------------------------
 # fonction d agregation de donnees
 #----------------------------------------
@@ -141,6 +142,7 @@ def init_glouton(pb):
             sol.append(i)
         i -= 1
     return sol
+
 
 #----------------------------------------
 # fonction voisinage
@@ -307,6 +309,8 @@ def som_pond_Y(w,y):
     for i in range(len(w)):
         res += y[i]*w[i]
     return res 
+
+
 def owa_Y(w,y):
     """
     w : liste des poids(ordre decrossant)
@@ -326,9 +330,12 @@ def owa_Y(w,y):
     for i in range(len(w)):
         res += yy[i]*w[i]
     return res
+
+
 #----------------------------------------
 # fonction pour calculer pmr,mr,mmr
 #----------------------------------------
+
 def PMR_SP(y,yprim,P=[]):
     """
     y(array) : une evaluation d'une solution realisable
@@ -491,8 +498,6 @@ def y_prefere_yprim(fonc,y,yprim,lambda_etoile):
     if(np.all(fw_y > fw_yprim)):
         return True
     return False
-
-
 
 
 #----------------------------------------
