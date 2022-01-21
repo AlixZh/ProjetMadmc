@@ -85,19 +85,23 @@ class QuadTree(object):
                         return True
         return False
     def check_dominated(self,node,k,racine_local):
+        value=[]
         if(node not in self.nodes):
 
             return False,None
         if(np.all(racine_local.k>=k)):
             if(np.all(racine_local.v<=node.v)):
-                return True,racine_local
+                return True,[racine_local]
             else:
                 for son in racine_local.sons:
                     k1=np.array([0]*self.p)
                     k1[np.where(node.v<=racine_local.v)]=1
-                    condition,value=self.check_dominated(node,k1,son)
+                    condition,value1=self.check_dominated(node,k1,son)
                     if(condition):
-                        return True,value
+                        value.append(value)
+            if(len(value)!=0):
+                return True,value
+
         return False,None
     def insert_tree(self,node,racine_local=None):
         """
@@ -118,13 +122,18 @@ class QuadTree(object):
         if(np.all(node.k==1)):
             return False
         if(np.all(node.k==0)):
+            if(np.all(node.v==racine_local.v)):
+                return False
             self.racine=node
+            node_a_inserer=[]
             for node1 in self.nodes:
                 self.nodes.remove(node1)
                 node1.parent=None
                 node1.sons=[]
                 node1.k=None
-                self.insert_tree(node1)
+                node_a_inserer.append(node1)
+            for node2 in node_a_inserer:
+                self.insert_tree(node2)
             return True
         s=racine_local.sons.copy()
         #chercher sur la branch ou la racine.k>=node.k(ou c'est possible avoir dominance)
@@ -135,43 +144,42 @@ class QuadTree(object):
         #chercher si les noeuds sont dominee par node
         list_node_reinserer=[]
         for son in racine_local.sons:
-            isdominee,subtree=self.check_dominated(node,node.k,son)
+            isdominee,subtrees=self.check_dominated(node,node.k,son)
             #son est domine par node, supprimer son, reinserer subtree de son 
             if(isdominee):
                 #if(subtree not in self.nodes):
                     #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree parent",subtree.parent,"len sons",len(subtree.sons))
                     #if(subtree.parent!=None):
                         #print("parent",subtree.parent.v)
-                self.nodes.remove(subtree)
-                subtree.parent.sons.remove(subtree)
-                subtree.clear_node()
-                li=self.get_branch(subtree)
-                #print("subtree",subtree.v,"branch",len(li))
-                for s_son in li:
-                    s_son.parent=None
-                    s_son.sons=[]
-                    #if(s_son not in self.nodes):
-                        #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree s_son",s_son.v)
-                    self.nodes.remove(s_son)
-                    list_node_reinserer.append(s_son)
-                    #print("racine_local",racine_local.v,"subtree",subtree.v,"branch",len(li),"list reinserer ",len(list_node_reinserer),list_node_reinserer[0].v)
-        
+                for subtree in subtrees:
+                    self.nodes.remove(subtree)
+                    subtree.parent.sons.remove(subtree)
+                    subtree.clear_node()
+                    li=self.get_branch(subtree)
+                    #print("subtree",subtree.v,"branch",len(li))
+                    for s_son in li:
+                        s_son.clear_node()
+                        #if(s_son not in self.nodes):
+                            #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree s_son",s_son.v)
+                        self.nodes.remove(s_son)
+                        list_node_reinserer.append(s_son)
+                        #print("racine_local",racine_local.v,"subtree",subtree.v,"branch",len(li),"list reinserer ",len(list_node_reinserer),list_node_reinserer[0].v)
+            
         for son in racine_local.sons:
             #meme successorship , vefier s il y a dominance
             if(np.all(son.k==node.k)):
                 #si node est dominee
-                if(all(node.v<=son.v)):
+                if(np.all(node.v<=son.v)):
                     for i in range(len(list_node_reinserer)):
                         n=list_node_reinserer[i]
                         self.insert_tree(n,self.racine)
                     #print("-----------",son.k,node.k)
                     return False
-                else:
-                    if(self.insert_tree(node,son)):
-                        for i in range(len(list_node_reinserer)):
-                            n=list_node_reinserer[i]
-                            self.insert_tree(n,self.racine)
-                        return True
+                if(self.insert_tree(node,son)):
+                    for i in range(len(list_node_reinserer)):
+                        n=list_node_reinserer[i]
+                        self.insert_tree(n,self.racine)
+                    return True
 
         
         #inserer node
