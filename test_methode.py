@@ -61,14 +61,12 @@ class execution_methode2:
         start=time.time() 
         nb_question,sol,opt_sp,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_SP,f = ts.y_sol,fonc_ag=ts.som_pond_Y,fonc_PMR=ts.PMR_SP)
         end=time.time()
-        print(val_mmr)
         return sol,end-start,nb_question,opt_sp,val_mmr
     
     def une_experience_owa(self):
         start=time.time()
         nb_question,sol,opt_owa,val_mmr,it = methode2.rbls(self.pb,self.eps,self.max_it,self.poids_OWA,f=ts.y_sol,fonc_ag=ts.owa_Y,fonc_PMR=ts.PMR_OWA)
         end=time.time()
-        print(val_mmr)
         return sol,end-start,nb_question,opt_owa,val_mmr
     
 class execution_exacte:
@@ -98,9 +96,9 @@ class execution_exacte:
     
     
     
-def main():
+def main(n=20,p=3):
     data = ts.lire_fichier("./2KP200-TA-0.dat")
-    mypb = ts.get_pb_alea(data)
+    mypb = ts.get_pb_alea(data,n,p)
     w_etoile = ts.gen_poids(mypb["p"])
     
     
@@ -158,4 +156,4 @@ def main():
 
 if __name__ == "__main__":
     for i in range(10):
-        main()
+        main(20,3)
