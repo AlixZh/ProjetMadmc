@@ -416,13 +416,17 @@ def PMR_SP(y,yprim,P=[]):
 
     # Resolution
     m.optimize()
+
     # print("")                
     # print('Solution optimale:')
+    if(m.status==3):
+        return None,float("-inf")
     res=np.array([0.0]*nbvar)
     for j in colonnes:
-        res[j]=lambda_[j].X
+        res[j]=lambda_[j].x
     # print("")
     # print('Valeur de la fonction objectif :', m.objVal)
+
     return res,m.objVal
 
 def PMR_OWA(y,yprim,P=[]):
@@ -481,6 +485,8 @@ def PMR_OWA(y,yprim,P=[]):
     m.optimize()
     # print("")                
     # print('Solution optimale:')
+    if(m.status==3):
+        return None,float("-inf")
     res=np.array([0.0]*nbvar)
     for j in colonnes:
         res[j]=lambda_[j].x
