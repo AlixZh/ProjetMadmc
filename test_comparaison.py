@@ -86,7 +86,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
 
     ag = [" SP"," OWA"]
     mline = ["-.","dotted","--"]
-    comp = [" Nb_Questions ", " Erreur R "," Erreur Cpt "]
+    comp = [" Nb_Questions ", " Erreur Relative "," Nb different objet pris "]
     m = ["exacte","methode1","methode2"]
     if(critere):
         for n in range(len(objets)):
@@ -149,7 +149,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
             plt.close(fig)
             
             
-def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],nb_test= 20,path="fig/"):
+def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig/"):
     #critere x:
     # for nbobjet in objets:
     #     a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
