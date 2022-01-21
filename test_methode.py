@@ -101,38 +101,40 @@ def main(n=20,p=3):
     mypb = ts.get_pb_alea(data,n,p)
     w_etoile = ts.gen_poids(mypb["p"])
     
-    
+    print("nb_critere : ", n)
+    print("nb_objets : ",p)
     test_m=execution_methode1([mypb,w_etoile],True)
     print("---------------- test methode1 somme pondérée ------------------ ")
     print(" w* pour somme pondérée" ,test_m.poids_SP)
-    x,temps,nb_question,y_ag,mmr=test_m.une_experience_sp()
+    x,temps,nb_question,y_ag1,mmr=test_m.une_experience_sp()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag1)
+
     print("\n---------------- test methode1 owa --------------------------- ")
     print(" w* pour owa" ,test_m.poids_OWA)
-    x,temps,nb_question,y_ag,mmr=test_m.une_experience_owa()
+    x,temps,nb_question,y_ag2,mmr=test_m.une_experience_owa()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag2)
     
     
     test_m=execution_exacte([mypb,w_etoile],True)
 
     print("---------------- test methode_exacte somme pondérée ------------------ ")
     print(" w* pour somme pondérée" ,test_m.poids_SP)
-    x,temps,y_ag=test_m.une_experience_sp()
+    x,temps,y_ag_sp=test_m.une_experience_sp()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag_sp)
     print("\n---------------- test methode_exacte owa --------------------------- ")
     print(" w* pour owa" ,test_m.poids_OWA)
-    x,temps,y_ag=test_m.une_experience_owa()
+    x,temps,y_ag_owa=test_m.une_experience_owa()
     print("solution methode1 : ",x)
     print("temps de calcul : " , temps)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag_owa)
     
     
     
@@ -140,20 +142,20 @@ def main(n=20,p=3):
 
     print("---------------- test methode2 somme pondérée ------------------ ")
     print(" w* pour somme pondérée" ,test_m.poids_SP)
-    x,temps,nb_question,y_ag,mmr = test_m.une_experience_sp()
+    x,temps,nb_question,y_ag_sp2,mmr = test_m.une_experience_sp()
     print("solution methode2 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag_sp2)
     print("\n---------------- test methode2 owa --------------------------- ")
     print(" w* pour owa" ,test_m.poids_OWA)
-    x,temps,nb_question,y_ag,mmr = test_m.une_experience_owa()
+    x,temps,nb_question,y_ag_owa2,mmr = test_m.une_experience_owa()
     print("solution methode2 : ",x)
     print("temps de calcul : " , temps)
     print("nombre de questions posées : " ,nb_question)
-    print("y_ag: ", y_ag)
+    print("y_ag: ", y_ag_owa2)
 
+    print("\n------\n erreur sp methode1 ",(y_ag_sp-y_ag1)/y_ag_sp," methode2 ", (y_ag_sp-y_ag_sp2)/y_ag_sp," \nerreur owa methode1 ",(y_ag_owa-y_ag2)/y_ag_owa," methode2 ",(y_ag_owa- y_ag_owa2)/y_ag_owa)
 
 if __name__ == "__main__":
-    for i in range(10):
-        main(20,3)
+    main(20,3)
