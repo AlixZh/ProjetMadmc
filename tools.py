@@ -103,9 +103,10 @@ def sol(pb,x):
     
 def y_sol(pb,x,list_ind = True):
     """
+    list_ind=True si x contient indice d'objets,False si x sous forme x[i] = 1 si l objet i est pris,sinon x[i]=0
     pb : un dictionnaire des donnees du probleme a considerer
     x  : (une solution realisable) liste des objets à prendre dans cette solution
-    revoie l'evaluation de x, contient que des 1 et 0
+    revoie l'evaluation de x
     """
     res=[0]*pb["p"]
     if(list_ind):
@@ -288,49 +289,6 @@ def owa(pb,w,x,list_ind = True):
         res += ai[ind[p]]*w[p]
     return res 
 
-def gen_capacite(pb,w=[]):
-    """
-    pb : donnees du problem
-    generer les poids de choquet
-    """
-    nvw = True #il faut generer un w
-    if(w != []):
-        nvw = False #il ne faut pas generer de w
-    if(nvw):
-        w = [0]
-    possibilite = [[set()]]
-    for i in range(1,pb["p"]-1):
-        comb = list(itertools.combinations([k for k in range(pb["p"])],i))
-        possibilite.append([set(i) for i in comb])
-        if(nvw and i ==1): #generer les jeux de poids pour les singletons
-            w.append(np.random.random(len(comb))) 
-        else:
-        	w.append(np.random.random(len(comb))) #achanger
-    possibilite.append([{i for i in range(pb["p"])}])
-    if(nvw):
-        w.append(1)
-    return w, possibilite
-
-
-def int_choquet(pb,w,x):
-    """
-    pb : donnees du probleme a considerer
-    w : liste des poids de ponderation pour la somme ponderee
-    x : la liste des indices des objets a prendre dans le sac 
-    renvoie le resultat de la fonction d agregation int_choquet, 
-    et true s il est valide, false, s il y a une erreur
-    """
-    res = 0
-    w, possibilite = gen_capacite(pb,w)
-    ai = y(pb,x)    
-    ind = np.argsort(ai) #trier les criteres dans l ordre croissant
-    
-    for i in range(0,pb["p"]):
-        if(i == 0):
-            res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
-        else : 
-            res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
-    return res
 def som_pond_Y(w,y):
     """
     w : liste des poids de ponderation pour la somme ponderee
@@ -467,10 +425,8 @@ def PMR_OWA(y,yprim,P=[]):
     obj = LinExpr();
     for i in range(nbvar):
         obj+=c[i]*lambda_[i]
-    #print("obj ",obj)
     # definition de l'objectif
     m.setObjective(obj,GRB.MAXIMIZE)
-    #print(m)
     # Definition des contraintes
     m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)#somme lambda=1
     for i in range(0,nbvar-1):
@@ -483,8 +439,6 @@ def PMR_OWA(y,yprim,P=[]):
         m.addConstr(quicksum(lambda_[j]*(x1-y1)[j] for j in colonnes) >= 0.0)
     # Resolution
     m.optimize()
-    # print("")                
-    # print('Solution optimale:')
     if(m.status==3):
         return None,float("-inf")
     res=np.array([0.0]*nbvar)
@@ -540,11 +494,60 @@ def y_prefere_yprim(fonc,y,yprim,lambda_etoile):
     yprim(array) : une autre evaluation de solution
     lambda_etole : poids exacte de fonction d'agregation
     """
-    #print("a ",a)
-    #print("b",b)
     fw_y = fonc(lambda_etoile,y)
     fw_yprim = fonc(lambda_etoile,yprim)
     if(np.all(fw_y > fw_yprim)):
         return True
     return False
+
+
+
+
+#----------------------------------------
+# fonction pas encore realisable pour integrale de choquet
+#----------------------------------------
+
+# def gen_capacite(pb,w=[]):
+#     """
+#     pb : donnees du problem
+#     generer les poids de choquet
+#     """
+#     nvw = True #il faut generer un w
+#     if(w != []):
+#         nvw = False #il ne faut pas generer de w
+#     if(nvw):
+#         w = [0]
+#     possibilite = [[set()]]
+#     for i in range(1,pb["p"]-1):
+#         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
+#         possibilite.append([set(i) for i in comb])
+#         if(nvw and i ==1): #generer les jeux de poids pour les singletons
+#             w.append(np.random.random(len(comb))) 
+#         else:
+#           w.append(np.random.random(len(comb))) #achanger
+#     possibilite.append([{i for i in range(pb["p"])}])
+#     if(nvw):
+#         w.append(1)
+#     return w, possibilite
+
+
+# def int_choquet(pb,w,x):
+#     """
+#     pb : donnees du probleme a considerer
+#     w : liste des poids de ponderation pour la somme ponderee
+#     x : la liste des indices des objets a prendre dans le sac 
+#     renvoie le resultat de la fonction d agregation int_choquet, 
+#     et true s il est valide, false, s il y a une erreur
+#     """
+#     res = 0
+#     w, possibilite = gen_capacite(pb,w)
+#     ai = y(pb,x)    
+#     ind = np.argsort(ai) #trier les criteres dans l ordre croissant
+    
+#     for i in range(0,pb["p"]):
+#         if(i == 0):
+#             res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
+#         else : 
+#             res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
+#     return res
 

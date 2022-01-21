@@ -3,8 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import quadtree as qdt
 def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
+    """la recherche locale de Pareto,
+    donner une approximation des points non-dominés (au sens de Pareto)
+    pb:dict du pb considere
+    p_init:fonction retourne une solution initialement réalisable
+    V: fonction donne la voisinage d'une solution
+    f: fonction d'evaluation de la solution
+    revoie X:ensemble des solutions non dominée,Y: ensemble d'evaluations de X
+    """
     x_init=p_init(pb)#population initiale
-    #print("x_init",x_init)
     racine=qdt.Node(x_init,f(pb,x_init),parent=None)
     racine.sons=[]
     Xe_approx=qdt.QuadTree(pb["p"],racine)#une approximation de l ensemble des solutions efficaces Xe
@@ -21,12 +28,10 @@ def PLS(pb,p_init=ts.init_glouton,V=ts.voisinage,f=ts.y_sol):
             for pp in v:
                 #si pp n est pas domine par p
                 if(not all(f(pb,pp)<=f(pb,p))):
-                    #a modifier
                     if(Xe_approx.insert_tree(qdt.Node(pp,f(pb,pp)))):
                         Pa.append(pp)
         P=Pa.copy()
         Pa=[]
-        #print("P",P)
     X=[set(Xe_approx.racine.solution)]
     Y=[f(pb,Xe_approx.racine.solution)]
     for node in Xe_approx.nodes:
@@ -44,13 +49,11 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
     revoie (nombre de questions posées,solution x,optimale de fonction d'agregation obtenu,liste de mmr en fonction de nombre question posée)
     """
     X,Y=PLS(pb)
-    #print("PLS",X)
     P=[]
     y,val_mmr=ts.MMR(Y,fonc_pmr=fonc_PMR)
     yprim,val_mr=ts.MR(y,Y,fonc_pmr=fonc_PMR)
     list_mmr_en_iteration=[val_mmr]
     i=0#nb de question posé
-    #print("\niteration ",i,val_mmr)
     while (val_mmr>0. and i<len(Y)):
         if(ts.y_prefere_yprim(fonc,y,yprim,lambda_etoile)):
             P.append((y,yprim))
@@ -66,7 +69,6 @@ def solution_optimal(pb,lambda_etoile,fonc=ts.som_pond_Y,fonc_PMR=ts.PMR_SP):
         yprim,val_mr=ts.MR(y,Y,P=P,fonc_pmr=fonc_PMR)
         i+=1
         list_mmr_en_iteration.append(val_mmr)    
-        #print("\niteration ",i,val_mmr)
     sol=[]
     for j in range(len(Y)):
         if(np.all(y==Y[j])):
