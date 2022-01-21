@@ -85,10 +85,9 @@ class QuadTree(object):
                         return True
         return False
     def check_dominated(self,node,k,racine_local):
-        value=[]
-        if(node not in self.nodes):
-
+        if(racine_local not in self.nodes):
             return False,None
+        value=[]
         if(np.all(racine_local.k>=k)):
             if(np.all(racine_local.v<=node.v)):
                 return True,[racine_local]
@@ -98,7 +97,7 @@ class QuadTree(object):
                     k1[np.where(node.v<=racine_local.v)]=1
                     condition,value1=self.check_dominated(node,k1,son)
                     if(condition):
-                        value.append(value)
+                        value+=value1
             if(len(value)!=0):
                 return True,value
 
@@ -109,13 +108,15 @@ class QuadTree(object):
         node: node a inserer
         racine_local: la racine de quadtree
         """
+        for n in self.nodes:
+            if(np.all(node.v==n.v)):
+                return False
 
         if(racine_local==None):
             racine_local=self.racine
         if(self.racine==None):
             self.racine=node
             return True
-
         node.k=np.array([0]*self.p)
         node.k[np.where(node.v<=racine_local.v)]=1
         #a reflechir pour le cas  node.k==1
@@ -152,6 +153,8 @@ class QuadTree(object):
                     #if(subtree.parent!=None):
                         #print("parent",subtree.parent.v)
                 for subtree in subtrees:
+                    if(subtree not in self.nodes):
+                        continue
                     self.nodes.remove(subtree)
                     subtree.parent.sons.remove(subtree)
                     subtree.clear_node()
@@ -180,8 +183,6 @@ class QuadTree(object):
                         n=list_node_reinserer[i]
                         self.insert_tree(n,self.racine)
                     return True
-
-        
         #inserer node
         if(node.parent==None):
             node.parent=racine_local
