@@ -38,6 +38,7 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
     for p in range(len(nb_critere)):
         for n in range(len(nb_objet)):
             for i in range(nb_test):
+                print(nb_objet[n],i)
                 pb=ts.get_pb_alea(data,nb_objet[n],nb_critere[p])
                 w_etoile = ts.gen_poids(nb_critere[p])
                 
@@ -71,8 +72,7 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
                 for _type in range(2):
                     l_temps_owa[p,n,_type+1,i] = temp[_type+1][1]
                     l_nb_Q_owa[p,n,_type,i] = temp[_type+1][2]
-                    l_cpt_erreur_owa[p,n,_type,i] ,l_erreur_relative_owa[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-2])
-                    
+                    l_cpt_erreur_owa[p,n,_type,i] ,l_erreur_relative_owa[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-2])   
     return l_temps_sp,l_nb_Q_sp, l_erreur_relative_sp,l_cpt_erreur_sp,l_temps_owa ,l_nb_Q_owa,l_erreur_relative_owa ,l_cpt_erreur_owa 
 
 
@@ -80,7 +80,7 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
 
 
 
-def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path= "fig"):
+def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path= "fig/"):
     """
     
     """
@@ -152,11 +152,11 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
             plt.close(fig)
             
             
-  def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig"):
+def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig/"):
     #critere x:
-    for nbobjet in objets:
-        a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
-        plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,path)
+    # for nbobjet in objets:
+    #     a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
+    #     plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,path)
     #objets x
     
     for nbc in criteres:
@@ -238,4 +238,6 @@ def plot_mmr_Q(eps = 0.1, nb_test = 20,nb_critere = [2,4,6],nb_objet = [20,50,10
                 plt.savefig(path+"Variation mmr "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n])+str(i))
                 plt.show()
                 plt.close(fig)
-  
+s = time.time()
+test()
+e = time.time()  
