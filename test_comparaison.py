@@ -15,9 +15,8 @@ from test_methode import *
 def erreur(pb,x,x_pl,val_ag,val_pl):
     x = np.array(ts.sol(pb,x))
     x_pl = np.array(ts.sol(pb,x_pl))
-    return np.sum(np.abs(x-x_pl)), (val_ag-val_pl)/val_pl
-    
-    
+    return np.sum(np.abs(x-x_pl)), np.abs(val_ag-val_pl)/np.abs(val_pl)
+
 def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_objet = [10,20,50,100,150]):
     """
     """
@@ -38,7 +37,6 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
     for p in range(len(nb_critere)):
         for n in range(len(nb_objet)):
             for i in range(nb_test):
-                print(nb_objet[n],i)
                 pb=ts.get_pb_alea(data,nb_objet[n],nb_critere[p])
                 w_etoile = ts.gen_poids(nb_critere[p])
                 
@@ -53,13 +51,12 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
                 temp.append(test_m1.une_experience_sp())
                 temp.append(test_m2.une_experience_sp())
                 #x2,temps2,nb_question2,y_ag2 = test_m2.une_experience_sp()
-                
                 #Stockage SP
                 l_temps_sp[p,n,0,i] = temp[0][1]
                 for _type in range(2):
                     l_temps_sp[p,n,_type + 1,i] = temp[_type+1][1]
                     l_nb_Q_sp[p,n,_type,i] = temp[_type+1][2]
-                    l_cpt_erreur_sp[p,n,_type,i],l_erreur_relative_sp[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-2])
+                    l_cpt_erreur_sp[p,n,_type,i],l_erreur_relative_sp[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-1])
                 
                 #OWA
                 temp = []
@@ -72,10 +69,10 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
                 for _type in range(2):
                     l_temps_owa[p,n,_type+1,i] = temp[_type+1][1]
                     l_nb_Q_owa[p,n,_type,i] = temp[_type+1][2]
-                    l_cpt_erreur_owa[p,n,_type,i] ,l_erreur_relative_owa[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-2])   
+                    print(temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-1])
+                    l_cpt_erreur_owa[p,n,_type,i] ,l_erreur_relative_owa[p,n,_type,i] = erreur(pb,temp[_type+1][0],temp[0][0],temp[_type+1][-2],temp[0][-1])
+                    
     return l_temps_sp,l_nb_Q_sp, l_erreur_relative_sp,l_cpt_erreur_sp,l_temps_owa ,l_nb_Q_owa,l_erreur_relative_owa ,l_cpt_erreur_owa 
-
-
 #plot
 
 
