@@ -84,30 +84,30 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
     #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
     #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
 
-    ag = [" SP"," OWA"]
+    ag = ["SP","OWA"]
     mline = ["-.","dotted","--"]
-    comp = [" Nb_Questions ", " Erreur Relative "," Nb different objet pris "]
+    comp = ["Nb_Questions", "Erreur Relative","Nb_different_objet_pris"]
     m = ["exacte","methode1","methode2"]
     if(critere):
         for n in range(len(objets)):
             for ncomp in range(1,len(comp)+1):
                 fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
                 fig.set_size_inches(25,10)
-                fig.suptitle(comp[ncomp-1]+" n = "+str(objets[n]))
+                fig.suptitle(comp[ncomp-1]+"_n="+str(objets[n]))
                 for v in range(2): #pSPT ou OWA
                     for methode in range(2):
                         axs[v].plot(criteres,np.sum(L[v][ncomp][:,n,methode,:],1)/nb_test,label=m[methode+1]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
-                plt.savefig(path+comp[ncomp-1]+" n = "+str(objets[n]))
+                plt.savefig(path+comp[ncomp-1]+"_n="+str(objets[n]))
                 plt.show()
                 plt.close(fig)
 
             #Comp Temps
             fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
             fig.set_size_inches(25,10)
-            fig.suptitle("Temps "+" n = "+str(objets[n]))
+            fig.suptitle("Temps_"+"n="+str(objets[n]))
             for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
                 for methode in range(3):
                     print("ICI   ",np.sum(L[v][0][:,n,methode,:],1))
@@ -115,7 +115,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
-            plt.savefig(path+"Temps_ "+"n = "+str(objets[n]))
+            plt.savefig(path+"Temps_"+"n="+str(objets[n]))
             plt.show()
             plt.close(fig)
     else:
@@ -123,28 +123,28 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
             for ncomp in range(1,len(comp)+1):
                 fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
                 fig.set_size_inches(25,10)
-                fig.suptitle(comp[ncomp-1]+" p = "+str(criteres[p]))
+                fig.suptitle(comp[ncomp-1]+"_p="+str(criteres[p]))
                 for v in range(2): #pSPT ou OWA
                     for methode in range(2):
                         axs[v].plot(objets,np.sum(L[v][ncomp][p,:,methode,:],1)/nb_test,label=m[methode+1]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
-                plt.savefig(path+comp[ncomp-1]+" p = "+str(criteres[p]))
+                plt.savefig(path+comp[ncomp-1]+"_p="+str(criteres[p]))
                 plt.show()
                 plt.close(fig)
 
             #Comp Temps
             fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
             fig.set_size_inches(25,10)
-            fig.suptitle("Temps "+" p = "+str(criteres[p]))
+            fig.suptitle("Temps_"+"p="+str(criteres[p]))
             for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
                 for methode in range(3):
                     axs[v].plot(objets,np.sum(L[v][0][p,:,methode,:],1)/nb_test,label=m[methode]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
-            plt.savefig(path+"Temps_ "+"p = "+str(criteres[p]))
+            plt.savefig(path+"Temps_"+"p="+str(criteres[p]))
             plt.show()
             plt.close(fig)
             
@@ -161,80 +161,91 @@ def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],p
         plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False,nb_test,path)
 
         
-def plot_mmr_Q(eps = 0.1, nb_test = 20,nb_critere = [2,4,6],nb_objet = [20,50,100],path="fig/"):
+def plot_mmr_Q(eps = 0.1, nb_test = 50,nb_critere = [2,4,6],nb_objet = [20,50,100,150],path="fig/"):
     """
     """
     
     data = ts.lire_fichier("./2KP200-TA-0.dat")
-    ag = [" SP"," OWA"]
+    ag = ["SP","OWA"]
     mline = ["-.","dotted"]
-    m = ["methode1","methode2"]
+    m = "methode1 "
+    
     for p in range(len(nb_critere)):
         for n in range(len(nb_objet)):
-            mmr_owa = [[],[]]
-            nbq_owa = [[],[]]
-            mmr_sp = [[],[]]
-            nbq_sp = [[],[]]
+            mmr = [[],[]] # 0 : SP, 1: OWA
+            nbq = [[],[]]
             for i in range(nb_test):
                 pb=ts.get_pb_alea(data,nb_objet[n],nb_critere[p])
                 w_etoile = ts.gen_poids(nb_critere[p])
                 
                 #creation
                 test_m1 = execution_methode1([pb,w_etoile],True)
-                test_m2 = execution_methode2(0.1,100,[pb,w_etoile],True)
                 
                 #SP
-                temp = []
-                temp.append(test_m1.une_experience_sp())
-                temp.append(test_m2.une_experience_sp())
+                temp = test_m1.une_experience_sp()
                 #x2,temps2,nb_question2,y_ag2 = test_m2.une_experience_sp()
                 
                 #Stockage SP
-                for _type in range(2):
-                    nbq_sp[_type].append(temp[_type][2])
-                    mmr_sp[_type].append(temp[_type][-1])
+                nbq[0].append(temp[2])
+                mmr[0].append(temp[-1])
+                    
                 #OWA
-                temp = []
-                temp.append(test_m1.une_experience_owa())
-                temp.append(test_m2.une_experience_owa())
+                temp = test_m1.une_experience_owa()
                 
                 #Stockage OWA
-                for _type in range(2):
-                    nbq_owa[_type].append(temp[_type][2])
-                    mmr_owa[_type].append(temp[_type][-1])
+
+                nbq[1].append(temp[2])
+                mmr[1].append(temp[-1])
             
 
             fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
             fig.set_size_inches(25,10)
-            fig.suptitle("Hytograme Nb Q "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
+            fig.suptitle("Histogramme_Nb_Q_"+"p_=_"+str(nb_critere[p])+"_n="+str(nb_objet[n]))
+            for _type in range(len(ag)):
+                axs[_type].hist(nbq[_type],label=m+ag[_type] )
+                axs[_type].set_xlabel("Nb questions")
+                axs[_type].legend()
 
-            axs[0].hist(nbq_sp,range(max(max(nbq_sp[0]),max(nbq_sp[1]))),label=[i+ag[0] for i in m])
-            axs[0].set_xlabel("Nb questions")
-            axs[0].set_ylabel("Nb")
-            axs[0].legend()
-            axs[1].hist(nbq_owa,range(max(max(nbq_owa[0]),max(nbq_owa[1]))),label=[i+ag[1] for i in m])
-            axs[1].set_xlabel("Nb questions")
-            axs[1].set_ylabel("Nb")
-            axs[1].legend()
-            plt.savefig(path+"Hytograme Nb Q "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
+            plt.savefig(path+"Histogramme_Nb_Q_"+"p_=_"+str(nb_critere[p])+"_n="+str(nb_objet[n]))
             plt.show()
             plt.close(fig)
-            for i in range(nb_test):
-                fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
-                fig.set_size_inches(25,10)
-                fig.suptitle("Variation mmr "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
-                for methode in range(2):
-                    axs[0].plot(range(nbq_sp[methode][i]),mmr_sp[methode][i],label=[i+ag[0] for i in m],linestyle=mline)
-                    axs[0].set_xlabel("Nb questions")
-                    axs[0].set_ylabel("Nb")
-                    axs[0].legend()
-                    axs[1].plot(range(nbq_owa[methode][i]),mmr_owa[methode][i],label=[i+ag[1] for i in m],linestyle=mline)
-                    axs[1].set_xlabel("Nb questions")
-                    axs[1].set_ylabel("Nb")
-                    axs[1].legend()
-                plt.savefig(path+"Variation mmr "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n])+str(i))
-                plt.show()
-                plt.close(fig)
+            
+            Ymmr = [[],[]]
+            nbm = []
+            for _type in range(len(ag)):
+                nb = set()
+                for i in mmr[_type] : 
+                    nb.add(len(i))
+                nb = list(nb)
+                nb.sort()
+                maxnb = max(nb)
+                mmrxx = []
+                for i in range(maxnb):
+                    mmrxx.append([])
+                nbm.append(maxnb)
+                for i in range(nb_test):
+                    for j in range(maxnb):
+                
+                        if(len(mmr[_type][i])>j):
+                            if(mmr[_type][i][j] == float("-inf")):
+                                mmrxx[j].append(0)
+                            else:
+                                mmrxx[j].append(mmr[_type][i][j])
+                            
+                for i in range(maxnb):
+                    Ymmr[_type].append(np.sum(mmrxx[i])/len(mmrxx[i]))
+            fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+            fig.set_size_inches(25,10)
+            fig.suptitle("Variation_mmr_"+"_p="+str(nb_critere[p])+"_n="+str(nb_objet[n]))
+            for _type in range(2):
+                print(len(Ymmr[_type]),nbm[_type],Ymmr[_type])
+                axs[_type].plot(range(nbm[_type]),Ymmr[_type],label=m+ag[_type] )
+                axs[_type].set_xlabel("Nb questions")
+                axs[_type].set_ylabel("MMR")
+                axs[_type].legend()
+            plt.savefig(path+"Variation_mmr_"+"_p="+str(nb_critere[p])+"_n="+str(nb_objet[n]))
+            plt.show()
+            plt.close(fig)
 s = time.time()
 test()
 e = time.time()  
