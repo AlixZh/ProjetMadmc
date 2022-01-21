@@ -162,3 +162,80 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
     for nbc in criteres:
         a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,[nbc],objets)
         plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False,path)
+
+        
+def plot_mmr_Q(eps = 0.1, nb_test = 20,nb_critere = [2,4,6],nb_objet = [20,50,100],path="fig/"):
+    """
+    """
+    
+    data = ts.lire_fichier("./2KP200-TA-0.dat")
+    ag = [" SP"," OWA"]
+    mline = ["-.","dotted"]
+    m = ["methode1","methode2"]
+    for p in range(len(nb_critere)):
+        for n in range(len(nb_objet)):
+            mmr_owa = [[],[]]
+            nbq_owa = [[],[]]
+            mmr_sp = [[],[]]
+            nbq_sp = [[],[]]
+            for i in range(nb_test):
+                pb=ts.get_pb_alea(data,nb_objet[n],nb_critere[p])
+                w_etoile = ts.gen_poids(nb_critere[p])
+                
+                #creation
+                test_m1 = execution_methode1([pb,w_etoile],True)
+                test_m2 = execution_methode2(0.1,100,[pb,w_etoile],True)
+                
+                #SP
+                temp = []
+                temp.append(test_m1.une_experience_sp())
+                temp.append(test_m2.une_experience_sp())
+                #x2,temps2,nb_question2,y_ag2 = test_m2.une_experience_sp()
+                
+                #Stockage SP
+                for _type in range(2):
+                    nbq_sp[_type].append(temp[_type][2])
+                    mmr_sp[_type].append(temp[_type][-1])
+                #OWA
+                temp = []
+                temp.append(test_m1.une_experience_owa())
+                temp.append(test_m2.une_experience_owa())
+                
+                #Stockage OWA
+                for _type in range(2):
+                    nbq_owa[_type].append(temp[_type][2])
+                    mmr_owa[_type].append(temp[_type][-1])
+            
+
+            fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+            fig.set_size_inches(25,10)
+            fig.suptitle("Hytograme Nb Q "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
+
+            axs[0].hist(nbq_sp,range(max(max(nbq_sp[0]),max(nbq_sp[1]))),label=[i+ag[0] for i in m])
+            axs[0].set_xlabel("Nb questions")
+            axs[0].set_ylabel("Nb")
+            axs[0].legend()
+            axs[1].hist(nbq_owa,range(max(max(nbq_owa[0]),max(nbq_owa[1]))),label=[i+ag[1] for i in m])
+            axs[1].set_xlabel("Nb questions")
+            axs[1].set_ylabel("Nb")
+            axs[1].legend()
+            plt.savefig(path+"Hytograme Nb Q "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
+            plt.show()
+            plt.close(fig)
+            for i in range(nb_test):
+                fig, axs = plt.subplots(1, 2) #un pour SP et un pour OWA
+                fig.set_size_inches(25,10)
+                fig.suptitle("Variation mmr "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n]))
+                for methode in range(2):
+                    axs[0].plot(range(nbq_sp[methode][i]),mmr_sp[methode][i],label=[i+ag[0] for i in m],linestyle=mline)
+                    axs[0].set_xlabel("Nb questions")
+                    axs[0].set_ylabel("Nb")
+                    axs[0].legend()
+                    axs[1].plot(range(nbq_owa[methode][i]),mmr_owa[methode][i],label=[i+ag[1] for i in m],linestyle=mline)
+                    axs[1].set_xlabel("Nb questions")
+                    axs[1].set_ylabel("Nb")
+                    axs[1].legend()
+                plt.savefig(path+"Variation mmr "+" p = "+str(nb_critere[p])+" n = "+str(nb_objet[n])+str(i))
+                plt.show()
+                plt.close(fig)
+  
