@@ -13,12 +13,26 @@ from test_methode import *
 
 
 def erreur(pb,x,x_pl,val_ag,val_pl):
+    """
+    pb : probleme condiere
+    x : liste des indices des objets selectionnes
+    x_pl :liste des indices des objets pris par le PL
+    val_ag : valeur de la fonction d agregation pour x
+    val_pl : valeur de la fonction d agregation pour x_pl
+    calcul le nombre de difference d objet pris et les erreurs relative
+    """
     x = np.array(ts.sol(pb,x))
     x_pl = np.array(ts.sol(pb,x_pl))
     return np.sum(np.abs(x-x_pl)), np.abs(val_ag-val_pl)/np.abs(val_pl)
 
 def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_objet = [10,20,50,100,150]):
     """
+    executer nb_test fois tous les nombres de critere de nb_critere et pour tous les nombres d objets de nb_objet
+    renvoie 8 listes 4 pour SP et 4 pour OWA
+    1-liste des temps d execution 
+    2-liste des nombres de question
+    3-liste des erreurs relatives
+    4-liste du nombre d objet different pris par rapport a l opt
     """
     
     data = ts.lire_fichier("./2KP200-TA-0.dat")
@@ -79,10 +93,14 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
 
 def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_test = 20, path= "fig/"):
     """
-    
+    L: liste[liste], len(L) = nb de fonction d agregation possible, contient les listes renvoyer par execution
+    criteres : liste du nombre de criteres a considerer
+    objets: liste du nombre d ojet a consider
+    critere: tracer les plots en fonction de la liste criteres
+    nb_test: nombre d iteration, executer nb_test fois differents instances de meme taille
+    path : nom du repertoire pour stocker les images de courbe
+    trace tous les courbes necessaires 
     """
-    #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
-    #SPtemps, SPnb_Q, SPerreur_r, SPcpt_erreur = L_SP
 
     ag = ["SP","OWA"]
     mline = ["-.","dotted","--"]
@@ -150,6 +168,10 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_te
             
             
 def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig/"):
+    """
+    eps: espilon
+    executre nb_test fois tous les instances de nombre de criteres et nombre d objets, en fonction du nombre de critere , puis du nombre d objet
+    """
     #critere x:
     # for nbobjet in objets:
     #     a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
@@ -163,6 +185,7 @@ def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],p
         
 def plot_mmr_Q(eps = 0.1, nb_test = 50,nb_critere = [2,4,6],nb_objet = [20,50,100,150],path="fig/"):
     """
+    permet de tracer les courbes de mmr en fonctin du nombre de question et les histogrammes des nombres de question
     """
     
     data = ts.lire_fichier("./2KP200-TA-0.dat")
