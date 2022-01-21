@@ -77,7 +77,7 @@ def execution_comparaison(eps = 0.1, nb_test = 50,nb_critere = [2,3,4,5,6],nb_ob
 
 
 
-def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path= "fig/"):
+def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,nb_test = 20, path= "fig/"):
     """
     
     """
@@ -96,7 +96,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
                 fig.suptitle(comp[ncomp-1]+" n = "+str(objets[n]))
                 for v in range(2): #pSPT ou OWA
                     for methode in range(2):
-                        axs[v].plot(criteres,np.sum(L[v][ncomp][:,n,methode,:],1),label=m[methode+1]+ag[v],linestyle=mline[methode])
+                        axs[v].plot(criteres,np.sum(L[v][ncomp][:,n,methode,:],1)/nb_test,label=m[methode+1]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
@@ -111,7 +111,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
             for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
                 for methode in range(3):
                     print("ICI   ",np.sum(L[v][0][:,n,methode,:],1))
-                    axs[v].plot(criteres,np.sum(L[v][0][:,n,methode,:],1),label=m[methode]+ag[v],linestyle=mline[methode])
+                    axs[v].plot(criteres,np.sum(L[v][0][:,n,methode,:],1)/nb_test,label=m[methode]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("criteres")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
@@ -126,7 +126,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
                 fig.suptitle(comp[ncomp-1]+" p = "+str(criteres[p]))
                 for v in range(2): #pSPT ou OWA
                     for methode in range(2):
-                        axs[v].plot(objets,np.sum(L[v][ncomp][p,:,methode,:],1),label=m[methode+1]+ag[v],linestyle=mline[methode])
+                        axs[v].plot(objets,np.sum(L[v][ncomp][p,:,methode,:],1)/nb_test,label=m[methode+1]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel(comp[ncomp-1])
                     axs[v].legend()
@@ -140,7 +140,7 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
             fig.suptitle("Temps "+" p = "+str(criteres[p]))
             for v in range(2): #parcours des methodes #premier erreur cpt , deuxieme relatif
                 for methode in range(3):
-                    axs[v].plot(objets,np.sum(L[v][0][p,:,methode,:],1),label=m[methode]+ag[v],linestyle=mline[methode])
+                    axs[v].plot(objets,np.sum(L[v][0][p,:,methode,:],1)/nb_test,label=m[methode]+ag[v],linestyle=mline[methode])
                     axs[v].set_xlabel("Nb objets")
                     axs[v].set_ylabel("Temps (s)")
                     axs[v].legend()
@@ -149,16 +149,16 @@ def plot(L,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],critere = True,path=
             plt.close(fig)
             
             
-def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],path="fig/"):
+def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],nb_test= 20,path="fig/"):
     #critere x:
     # for nbobjet in objets:
     #     a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
-    #     plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,path)
+    #     plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,nb_test,path)
     #objets x
     
     for nbc in criteres:
         a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,[nbc],objets)
-        plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False,path)
+        plot([[a,b,c,d],[e,f,g,h]],[nbc],objets,False,nb_test,path)
 
         
 def plot_mmr_Q(eps = 0.1, nb_test = 20,nb_critere = [2,4,6],nb_objet = [20,50,100],path="fig/"):
