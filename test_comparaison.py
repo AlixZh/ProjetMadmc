@@ -173,9 +173,9 @@ def test(eps=0.1,nb_test = 50,criteres = [2,3,4,5,6],objets=[10,20,50,100,150],p
     executre nb_test fois tous les instances de nombre de criteres et nombre d objets, en fonction du nombre de critere , puis du nombre d objet
     """
     #critere x:
-    # for nbobjet in objets:
-    #     a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
-    #     plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,nb_test,path)
+    for nbobjet in objets:
+        a,b,c,d,e,f,g,h = execution_comparaison(eps , nb_test,criteres,[nbobjet])
+        plot([[a,b,c,d],[e,f,g,h]],criteres,[nbobjet],True ,nb_test,path)
     #objets x
     
     for nbc in criteres:
