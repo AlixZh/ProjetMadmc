@@ -547,4 +547,223 @@ def y_prefere_yprim(fonc,y,yprim,lambda_etoile):
 #         else : 
 #             res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
 #     return res
+#----------------------------------------
+# fonction pas encore realisable pour integrale de choquet
+#----------------------------------------
 
+# def gen_capacite(pb,w=[]):
+#     """
+#     pb : donnees du problem
+#     generer les poids de choquet
+#     """
+#     nvw = True #il faut generer un w
+#     if(w != []):
+#         nvw = False #il ne faut pas generer de w
+#     if(nvw):
+#         w = [0]
+#     possibilite = [[set()]]
+#     for i in range(1,pb["p"]-1):
+#         comb = list(itertools.combinations([k for k in range(pb["p"])],i))
+#         possibilite.append([set(i) for i in comb])
+#         if(nvw and i ==1): #generer les jeux de poids pour les singletons
+#             w.append(np.random.random(len(comb))) 
+#         else:
+#           w.append(np.random.random(len(comb))) #achanger
+#     possibilite.append([{i for i in range(pb["p"])}])
+#     if(nvw):
+#         w.append(1)
+#     return w, possibilite
+
+
+# def int_choquet(pb,w,x):
+#     """
+#     pb : donnees du probleme a considerer
+#     w : liste des poids de ponderation pour la somme ponderee
+#     x : la liste des indices des objets a prendre dans le sac 
+#     renvoie le resultat de la fonction d agregation int_choquet, 
+#     et true s il est valide, false, s il y a une erreur
+#     """
+#     res = 0
+#     w, possibilite = gen_capacite(pb,w)
+#     ai = y(pb,x)    
+#     ind = np.argsort(ai) #trier les criteres dans l ordre croissant
+    
+#     for i in range(0,pb["p"]):
+#         if(i == 0):
+#             res += (ai[ind[i]] -0) * w[len(ind[i:])][np.where( np.array(possibilite) == set(ind[i:]) )]
+#         else : 
+#             res += (ai[ind[i]] -ind[i-1]) * w[len(ind[i:])][np.where(np.array(possibilite) == set(ind[i:]) )]
+#     return res
+#----------------------------------------
+# fonction pas encore realisable pour integrale de choquet
+#----------------------------------------
+
+'''
+
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    a=list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))
+    ens=[]
+    for i in a:
+        ens.append(set(i))
+    return ens
+
+def ens_choquet_yi(y,n):
+    ordre=np.argsort(y)
+    l=[-1]*n
+    for i in range(n):
+        ind={ordre[j] for j in range(i,n)}
+        #l[i]=ens.index(ind)
+        l[i]=ind
+    return l
+
+def PMR_IC(y,yprim,P=[]):
+    """
+    x(array) : une evaluation d'une solution realisable
+    y(array) : une autre evaluation
+    revoie tuple(array,float):lambda qui donne le max regret (y-x),et la valeur de max regret
+    """
+    env = Env(empty=True)
+    env.setParam("OutputFlag",0)
+    env.start()
+
+    if(len(y)!=len(yprim)):
+        print ("erreur len(x)!=len(y)")
+    n=len(y)
+    ind_y=np.argsort(y)
+    ind_yprim=np.argsort(yprim)
+
+    ens_choquet_y=ens_choquet_yi(y,n)#i-level set de y
+    ens_choquet=ens_choquet_y.copy()
+    ens_choquet_yrim=ens_choquet_yi(yprim,n)#i-level set de yprim
+    for e in ens_choquet_yrim:
+        if(e not in ens_choquet):
+            ens_choquet.append(e)
+    nbvar=len(ens_choquet)#<=len(ens_choquet_y +len(ens_choquet_yprim)
+
+    colonnes = range(nbvar)
+    #matrice des contraintes
+    #a = [1]*nbvar
+    # Second membre
+    #b = 1.0
+    #parametre de fonction objectif
+    #c=(yprim-y)
+
+    m = Model("PMR_IC",env=env)     
+ # declaration variables de decision
+    lambda_ = []
+    for i in colonnes:
+        lambda_.append(m.addVar(vtype=GRB.CONTINUOUS,lb=0.0,ub=1.0, name="lambda%d" % (i+1)))
+    
+    m.update()
+
+    obj = LinExpr();
+    v_yi=ens_choquet.index(ens_choquet_y[0])#indice de premier element de i-level set de y
+    v_yprim=ens_choquet.index(ens_choquet_yrim[0])#indice de premier element de i-level set de yprim
+
+    obj+=yprim[ind_yprim[0]]*lambda_[v_yi]-y[ind_y[0]]*lambda_[v_yprim]#premier terme y(0)*v({0,...,n-1})-y'(0)*v({0,...,n-1})
+    for i in range(1,n):
+        v_yi=ens_choquet.index(ens_choquet_y[i])
+        v_yprimi=ens_choquet.index(ens_choquet_yrim[i])
+        obj+=((yprim[ind_yprim[i]]-yprim[ind_yprim[i-1]])*lambda_[v_yi]-(y[ind_y[i]]-y[ind_y[i-1]])*lambda_[v_yprimi])#( y'(i)-y'(i-1) )*vyi-(y(i)-y(i-1))*vy'i
+    #print("obj ",obj)
+    # definition de l'objectif
+    m.setObjective(obj,GRB.MAXIMIZE)
+    #print(m)
+    # Definition des contraintes
+    #m.addConstr(quicksum(lambda_[j]*a[j] for j in colonnes) == b, "Contrainte%d" % 1)#somme lambda=1
+    for i in range(0,n-1):
+        v_yi=ens_choquet.index(ens_choquet_y[i])
+        v_yi_plus_1=ens_choquet.index(ens_choquet_y[i+1])
+        v_yprimi=ens_choquet.index(ens_choquet_yrim[i])
+        v_yprimi_plus_1=ens_choquet.index(ens_choquet_y[i+1])
+        m.addConstr(lambda_[v_yi_plus_1]-lambda_[v_yi] <= 0 )#v_yi<=v_yi+1
+        m.addConstr(lambda_[v_yprimi_plus_1]-lambda_[v_yprimi] <= 0 )#v_y'i<=v_y'i+1
+    for i in range(n):
+        for j in range(n):
+            if(ens_choquet_yrim[i].issubset(ens_choquet_y[j])):
+                if(i!=0):
+                    if(ens_choquet_yrim[i-1].issubset(ens_choquet_y[j])):
+                        continue
+                if(j!=n-1):
+                    if(ens_choquet_yrim[i].issubset(ens_choquet_y[j+1])):
+                        continue
+                m.addConstr(lambda_[ens_choquet.index(ens_choquet_yrim[i])]-lambda_[ens_choquet.index(ens_choquet_y[j])] <= 0 )#
+
+    for rel,ens,const in P:
+        if(ens in ens_choquet):
+            if(rel):
+                #ens>const
+                #print("entrer")
+                m.addConstr(lambda_[ens_choquet.index(ens)]>=const)
+            else:
+                m.addConstr(lambda_[ens_choquet.index(ens)]<=const)
+    # Resolution
+    m.optimize()
+    # print("")                
+    # print('Solution optimale:')
+    res=np.array([0.0]*nbvar)
+    for j in colonnes:
+        res[j]=lambda_[j].x
+    # print("")
+    # if(P!=[]):
+    #print(res) 
+    #print('Valeur de la fonction objectif :', m.objVal)
+    return res,m.objVal
+
+def solution_optimal_IC(pb,capacite):
+    X,Y=methode1.PLS(pb)
+    n=pb["p"]
+    print("PLS",X)
+    ens_choquet=powerset(range(n))
+    P=[]
+    y,res_mmr=ts.MMR(Y)
+    yprim,res_mr=ts.MR(y,Y)
+    res_courant=float("inf")
+    i=0
+    while(res_mmr>1 and i<5):
+        print(i,res_mmr)
+        i+=1
+        A=ens_choquet_yi(y,n)
+        A_etoile=[]
+        bol=True
+        for a in ens_choquet_yi(yprim,n):
+            if(a not in A):
+                A.append(a)
+        for ind in range(len(A)):
+            # vec_a=[0]*n
+            # for i in A[ind]:
+            #     vec_a[i]=1
+            # c=const[ind]
+            #calculer MMRCv (X ; P {(1A0, Λ)} et MMRCv ( X ; P {(Λ, 1A0)}
+            a=0.
+            b=1.
+            m=(a+b)/2
+            y1,res1=ts.MMR(Y,P+[[True,A[ind],m]])#fonction decroissante de m
+            y2,res2=ts.MMR(Y,P+[[False,A[ind],m]])#fonction crossainte de m
+            #methode bisection interection de ces deux fonctions mmr,pour trouver m optimal
+            while ((b-a)/2<0.00000001):
+                if(res1>res2):
+                    a=m
+                else:
+                    b=m
+                y1,res1=ts.MMR(Y,P+[[True,A[ind],m]])#fonction decroissante de m,couple (A,m)
+                y2,res2=ts.MMR(Y,P+[[False,A[ind],m]])#fonction crossainte de m couple (m,A)
+            #prends la couple A,m qui donne max
+            res1=max(res1,res2)
+            if(res_courant>=res1):
+                print(i,"res_courant",res_courant,res1,res2)
+                #min max (mmr_gauche,mmr_droite)
+                res_courant=res1
+                A_etoile=A[ind]
+                const=m
+        if(capacite[ens_choquet.index(A_etoile)]>=const):
+            P+=[[True,A_etoile,const]]
+        else:
+            P+=[[False,A_etoile,const]]
+        print(i,"p",P,"\n res_mmr ",res_mmr,"res courant",res_courant,"\na",A,"y",y,"yprim",yprim)
+        y,res_mmr=ts.MMR(Y,P,PMR_IC)
+        yprim,res_mr=ts.MR(y,Y,P,PMR_IC)
+    return y
+'''

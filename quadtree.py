@@ -41,39 +41,19 @@ class QuadTree(object):
             if(son.sons!=[]):
                 list_nodes=list_nodes|self.get_branch(son,list_nodes)
         return list_nodes
-    # def get_branch(self,racine_branch,list_nodes=[]): 
-    #     """
-    #     racine_branch: type Node , racine de subtree  
-
-    #     revoie subtree(list des nodes) d ou racine_branch est le racine
-
-    #     """
-    #     for son in racine_branch.sons:
-    #         list_nodes.append(son)
-    #         #print("racine_branch",racine_branch.v,"son",son.v,"son_son",len(son.sons))
-    #         if(len(son.sons)!=[]):
-    #             list_nodes=self.get_branch(son,list_nodes)
-    #     #print("racine branch",racine_branch.v,"sons",len(racine_branch.sons),"list nodes ",len(list_nodes))
-    #     return list_nodes
-    # def check_branch(self,racine_branch,list_reinsert=set()): 
-    #     """
-    #     racine_branch: type Node , racine de subtree  
-
-    #     revoie subtree(list des nodes) d ou racine_branch est le racine
-
-    #     """
-
-    #     check_list=set(racine_branch.sons)
-    #     for son in racine_branch.sons:
-    #         if(son.sons!=[]):
-    #             list_nodes=list_nodes|self.get_branch(son,list_nodes)
-    #     return list_nodes
     def clear_tree(self):
         self.racine=None
         self.nodes=[]
         for node in self.nodes:
             node.clear_node()
     def check_dominance(self,node,k,racine_local):
+        """
+        vefifier si node est domine par les nodes dans la branch ou racine_local est le racine
+        node : Node
+        k : chaine binaire courant pour node
+        racine_local :Node 
+        """
+
         if(np.all(k>=racine_local.k)):
             if(np.all(node.v<=racine_local.v)):
                 return True
@@ -85,6 +65,13 @@ class QuadTree(object):
                         return True
         return False
     def check_dominated(self,node,k,racine_local):
+        """
+        trouver les nodes dominee par node
+        node : Node
+        k : chaine binaire
+        racine_local : Node
+
+        """
         if(racine_local not in self.nodes):
             return False,None
         value=[]
@@ -108,10 +95,6 @@ class QuadTree(object):
         node: node a inserer
         racine_local: la racine de quadtree
         """
-        for n in self.nodes:
-            if(np.all(node.v==n.v)):
-                return False
-
         if(racine_local==None):
             racine_local=self.racine
         if(self.racine==None):
@@ -148,10 +131,6 @@ class QuadTree(object):
             isdominee,subtrees=self.check_dominated(node,node.k,son)
             #son est domine par node, supprimer son, reinserer subtree de son 
             if(isdominee):
-                #if(subtree not in self.nodes):
-                    #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree parent",subtree.parent,"len sons",len(subtree.sons))
-                    #if(subtree.parent!=None):
-                        #print("parent",subtree.parent.v)
                 for subtree in subtrees:
                     if(subtree not in self.nodes):
                         continue
@@ -159,15 +138,10 @@ class QuadTree(object):
                     subtree.parent.sons.remove(subtree)
                     subtree.clear_node()
                     li=self.get_branch(subtree)
-                    #print("subtree",subtree.v,"branch",len(li))
                     for s_son in li:
                         s_son.clear_node()
-                        #if(s_son not in self.nodes):
-                            #print("subtree",subtree.v,"racine_local",racine_local.v,"subtree s_son",s_son.v)
                         self.nodes.remove(s_son)
                         list_node_reinserer.append(s_son)
-                        #print("racine_local",racine_local.v,"subtree",subtree.v,"branch",len(li),"list reinserer ",len(list_node_reinserer),list_node_reinserer[0].v)
-            
         for son in racine_local.sons:
             #meme successorship , vefier s il y a dominance
             if(np.all(son.k==node.k)):
@@ -176,7 +150,6 @@ class QuadTree(object):
                     for i in range(len(list_node_reinserer)):
                         n=list_node_reinserer[i]
                         self.insert_tree(n,self.racine)
-                    #print("-----------",son.k,node.k)
                     return False
                 if(self.insert_tree(node,son)):
                     for i in range(len(list_node_reinserer)):
@@ -184,6 +157,9 @@ class QuadTree(object):
                         self.insert_tree(n,self.racine)
                     return True
         #inserer node
+        for n in self.nodes:
+            if(np.all(node.v==n.v)):
+                return False
         if(node.parent==None):
             node.parent=racine_local
             racine_local.sons.append(node)
@@ -198,39 +174,5 @@ class QuadTree(object):
             self.insert_tree(n,self.racine)
 
         return True
-'''
-#test l'exemple de cours de en minimisation 
-a=Node([10,10,10])
-b=Node([5,5,23])
-c=Node([6,16,22])
-d=Node([14,18,6])
-e=Node([9,8,18])
-f=Node([3,25,16])
-g=Node([11,15,9])
-h=Node([40,16,7])
-tree=QuadTree(3)
-#print(a)
-tree.insert_tree(a)
-tree.insert_tree(b)
-tree.insert_tree(c)
-tree.insert_tree(d)
-tree.insert_tree(e)
-tree.insert_tree(f)
-tree.insert_tree(g)
-tree.insert_tree(h)
-tree.insert_tree(Node([4,8,12]))
-tree.insert_tree(Node([12,15,5]))
-print(len(tree.get_branch(a)))
-print(len(tree.nodes))
-for node in tree.nodes:
-    print("tree node2 ",node.v , "parent ",node.parent.v)
-    for son in node.sons:
-        print("22 enfant de ",node.v," : ",son.v," parent ",son.parent.v)
-
-
-tree.clear_tree()
-print(tree.nodes)
-
-'''
 
 
