@@ -29,7 +29,7 @@ PL.py : contient les PL pour trouver la solution optimale en fonction du vecteur
 
 ## Exécution
 
-Lancer le fichier test_methode.py pour executer la méthode 1,la méthode 2 et la méthode exactes pour une instance donnée.
+Lancer le fichier test_methode.py pour executer la méthode 1, la méthode 2 et la méthode exacte pour une instance donnée.
 Lancer le fichier test_comp.py pour obtenir les courbes de comparaison
 
 Appeler la fonction main de test_methode pour avoir les resultats des 2 methodes et du PL, en donnant en parametre le nombre d'objet et critere à considérer
